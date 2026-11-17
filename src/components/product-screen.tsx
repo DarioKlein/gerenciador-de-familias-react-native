@@ -4,10 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 
 type ProductScreenProps = PropsWithChildren<{
-  title: string;
+  title?: string;
   description?: string;
   action?: ReactNode;
 }>;
@@ -20,15 +20,17 @@ export function ProductScreen({ title, description, action, children }: ProductS
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled">
           <View style={styles.content}>
-            <View style={styles.header}>
-              <View style={styles.headerText}>
-                <ThemedText type="subtitle">{title}</ThemedText>
-                {description ? (
-                  <ThemedText themeColor="textSecondary">{description}</ThemedText>
-                ) : null}
+            {title || description || action ? (
+              <View style={styles.header}>
+                <View style={styles.headerText}>
+                  {title ? <ThemedText type="subtitle">{title}</ThemedText> : null}
+                  {description ? (
+                    <ThemedText themeColor="textSecondary">{description}</ThemedText>
+                  ) : null}
+                </View>
+                {action}
               </View>
-              {action}
-            </View>
+            ) : null}
             {children}
           </View>
         </ScrollView>
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: 'center',
     paddingTop: Platform.select({ web: 96, default: Spacing.four }),
-    paddingBottom: BottomTabInset + Spacing.four,
+    paddingBottom: Spacing.four,
     paddingHorizontal: Spacing.four,
   },
   content: {

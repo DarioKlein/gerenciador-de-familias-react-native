@@ -1,27 +1,34 @@
-import { StyleSheet } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 
-import { ProductScreen } from '@/components/product-screen';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
+import { useFamiliasRepository } from '@/database/use-familias-repository';
+import { FamiliaForm } from '@/features/familias/components/familia-form';
 
 export default function NovaFamiliaScreen() {
+  const repository = useFamiliasRepository();
+  const [bairros, setBairros] = useState<string[]>([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      void repository.listarBairros().then((items) => {
+        if (active) setBairros(items);
+      });
+      return () => {
+        active = false;
+      };
+    }, [repository])
+  );
+
   return (
-    <ProductScreen
-      title="Nova família"
-      description="O formulário de cadastro usará o modelo e as validações já preparados.">
-      <ThemedView type="backgroundElement" style={styles.card}>
-        <ThemedText themeColor="textSecondary">
-          A interface do formulário será implementada no próximo módulo.
-        </ThemedText>
-      </ThemedView>
-    </ProductScreen>
+    <FamiliaForm
+      bairros={bairros}
+      submitLabel="Salvar família"
+      onCancel={() => router.back()}
+      onSubmit={async (input) => {
+        const familia = await repository.criar(input);
+        router.replace({ pathname: '/familias/[id]', params: { id: familia.id } });
+      }}
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    padding: Spacing.four,
-    borderRadius: Spacing.four,
-  },
-});

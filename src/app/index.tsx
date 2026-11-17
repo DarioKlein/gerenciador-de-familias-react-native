@@ -1,6 +1,7 @@
 import { Link } from 'expo-router';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AppIcon } from '@/components/app-icon';
 import { ProductScreen } from '@/components/product-screen';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -14,9 +15,12 @@ export default function HomeScreen() {
       action={
         <Link href="/familias/nova" asChild>
           <Pressable accessibilityRole="button" style={styles.primaryButton}>
-            <ThemedText type="smallBold" style={styles.primaryButtonText}>
-              + Nova família
-            </ThemedText>
+            <View style={styles.buttonContent}>
+              <AppIcon name="addPerson" color="#FFFFFF" size={20} />
+              <ThemedText type="smallBold" style={styles.primaryButtonText}>
+                Nova família
+              </ThemedText>
+            </View>
           </Pressable>
         </Link>
       }>
@@ -47,5 +51,10 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: '#FFFFFF',
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
   },
 });
