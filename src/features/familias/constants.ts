@@ -6,6 +6,17 @@ export const CIDADES = [
   'Guaripu',
 ] as const;
 
+export const MUNICIPIO_OFICIAL = 'Cândido Mota';
+export const UF_OFICIAL = 'SP';
+
+export const LOCALIDADE_LABELS: Record<(typeof CIDADES)[number], string> = {
+  'Cândido Mota': 'Cândido Mota — sede',
+  Alexandria: 'Alexandria — distrito',
+  'Porto Almeida': 'Porto Almeida — distrito',
+  'Frutal do Campo': 'Frutal do Campo — distrito',
+  Guaripu: 'Guaripu — distrito',
+};
+
 export const CARGOS = [
   'Auxiliar de jovens',
   'Administração',
@@ -45,3 +56,7 @@ export type Ministerio = (typeof MINISTERIOS)[number];
 export type SituacaoReligiosa = (typeof SITUACOES_RELIGIOSAS)[number];
 export type SituacaoEconomica = (typeof SITUACOES_ECONOMICAS)[number];
 export type TipoResidencia = (typeof TIPOS_RESIDENCIA)[number];
+
+export function getLocalidadeLabel(value: Cidade) {
+  return LOCALIDADE_LABELS[value];
+}

@@ -12,11 +12,12 @@ export type ISODateTime = string;
 export type FamiliaDados = {
   nome: string;
   endereco: string;
+  cep: string | null;
   numero: string | null;
   bairro: string | null;
   cidade: Cidade | null;
   telefone: string | null;
-  cargo: Cargo | null;
+  cargos: Cargo[];
   ministerio: Ministerio | null;
   situacaoReligiosa: SituacaoReligiosa | null;
   situacaoEconomica: SituacaoEconomica | null;
@@ -33,11 +34,12 @@ export type Familia = FamiliaDados & {
 export type FamiliaInput = {
   nome: string;
   endereco: string;
+  cep?: string | null;
   numero?: string | null;
   bairro?: string | null;
   cidade?: string | null;
   telefone?: string | null;
-  cargo?: string | null;
+  cargos?: string[];
   ministerio?: string | null;
   situacaoReligiosa?: string | null;
   situacaoEconomica?: string | null;

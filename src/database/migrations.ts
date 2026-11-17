@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-export const DATABASE_VERSION = 1;
+export const DATABASE_VERSION = 3;
 
 const CREATE_SCHEMA_V1 = `
   CREATE TABLE IF NOT EXISTS familias (
@@ -67,11 +67,53 @@ const CREATE_SCHEMA_V1 = `
   CREATE INDEX IF NOT EXISTS idx_familias_cidade ON familias (cidade);
 `;
 
+const MIGRATE_TO_V2 = `
+  ALTER TABLE familias ADD COLUMN cep TEXT;
+  CREATE INDEX IF NOT EXISTS idx_familias_cep ON familias (cep);
+
+  CREATE TABLE IF NOT EXISTS ceps_cache (
+    cep TEXT PRIMARY KEY NOT NULL,
+    endereco TEXT NOT NULL,
+    bairro TEXT,
+    municipio TEXT NOT NULL,
+    uf TEXT NOT NULL,
+    atualizado_em TEXT NOT NULL
+  );
+`;
+
+const MIGRATE_TO_V3 = `
+  CREATE TABLE IF NOT EXISTS familia_cargos (
+    familia_id TEXT NOT NULL,
+    cargo TEXT NOT NULL CHECK (
+      cargo IN (
+        'Auxiliar de jovens',
+        'Administração',
+        'Porteiro / Porteira',
+        'Músico'
+      )
+    ),
+    PRIMARY KEY (familia_id, cargo),
+    FOREIGN KEY (familia_id) REFERENCES familias(id) ON DELETE CASCADE
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_familia_cargos_familia
+    ON familia_cargos (familia_id);
+
+  INSERT OR IGNORE INTO familia_cargos (familia_id, cargo)
+    SELECT id, cargo
+    FROM familias
+    WHERE cargo IS NOT NULL;
+
+  UPDATE familias
+    SET cargo = NULL
+    WHERE cargo IS NOT NULL;
+`;
+
 export async function migrateDatabase(db: SQLiteDatabase) {
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
 
   const result = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
-  const currentVersion = result?.user_version ?? 0;
+  let currentVersion = result?.user_version ?? 0;
 
   if (currentVersion > DATABASE_VERSION) {
     throw new Error(
@@ -83,6 +125,22 @@ export async function migrateDatabase(db: SQLiteDatabase) {
     await db.withTransactionAsync(async () => {
       await db.execAsync(CREATE_SCHEMA_V1);
       await db.execAsync('PRAGMA user_version = 1;');
+    });
+    currentVersion = 1;
+  }
+
+  if (currentVersion === 1) {
+    await db.withTransactionAsync(async () => {
+      await db.execAsync(MIGRATE_TO_V2);
+      await db.execAsync('PRAGMA user_version = 2;');
+    });
+    currentVersion = 2;
+  }
+
+  if (currentVersion === 2) {
+    await db.withTransactionAsync(async () => {
+      await db.execAsync(MIGRATE_TO_V3);
+      await db.execAsync('PRAGMA user_version = 3;');
     });
   }
 }

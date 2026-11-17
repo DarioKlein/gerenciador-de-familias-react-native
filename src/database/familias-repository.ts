@@ -14,17 +14,18 @@ import type {
   FamiliaFiltros,
   FamiliaInput,
 } from '@/features/familias/types';
+import { obterDigitosTelefone } from '@/features/familias/telefone';
 import { validarFamiliaOuFalhar } from '@/features/familias/validation';
 
 type FamiliaRow = {
   id: string;
   nome: string;
   endereco: string;
+  cep: string | null;
   numero: string | null;
   bairro: string | null;
   cidade: Cidade | null;
   telefone: string | null;
-  cargo: Cargo | null;
   ministerio: Ministerio | null;
   situacao_religiosa: SituacaoReligiosa | null;
   situacao_economica: SituacaoEconomica | null;
@@ -33,16 +34,21 @@ type FamiliaRow = {
   atualizado_em: string;
 };
 
+type CargoRow = {
+  familia_id: string;
+  cargo: Cargo;
+};
+
 const SELECT_FAMILIAS = `
   SELECT
     id,
     nome,
     endereco,
+    cep,
     numero,
     bairro,
     cidade,
     telefone,
-    cargo,
     ministerio,
     situacao_religiosa,
     situacao_economica,
@@ -52,16 +58,17 @@ const SELECT_FAMILIAS = `
   FROM familias
 `;
 
-function mapFamilia(row: FamiliaRow): Familia {
+function mapFamilia(row: FamiliaRow, cargos: Cargo[]): Familia {
   return {
     id: row.id,
     nome: row.nome,
     endereco: row.endereco,
+    cep: row.cep,
     numero: row.numero,
     bairro: row.bairro,
     cidade: row.cidade,
     telefone: row.telefone,
-    cargo: row.cargo,
+    cargos,
     ministerio: row.ministerio,
     situacaoReligiosa: row.situacao_religiosa,
     situacaoEconomica: row.situacao_economica,
@@ -98,6 +105,18 @@ function correspondeAosFiltros(familia: Familia, filtros: FamiliaFiltros) {
   const busca = filtros.busca ? normalizarBusca(filtros.busca) : '';
   if (!busca) return true;
 
+  const buscaNumerica = /^[\d\s()+-]+$/.test(busca)
+    ? obterDigitosTelefone(busca)
+    : '';
+  if (
+    buscaNumerica &&
+    ((familia.telefone &&
+      obterDigitosTelefone(familia.telefone).includes(buscaNumerica)) ||
+      (familia.cep && familia.cep.replace(/\D/g, '').includes(buscaNumerica)))
+  ) {
+    return true;
+  }
+
   return [
     familia.nome,
     familia.endereco,
@@ -105,24 +124,63 @@ function correspondeAosFiltros(familia: Familia, filtros: FamiliaFiltros) {
     familia.bairro,
     familia.cidade,
     familia.telefone,
+    familia.cep,
   ].some((value) => value && normalizarBusca(value).includes(busca));
 }
 
 export function createFamiliasRepository(db: SQLiteDatabase) {
-  async function buscarPorId(id: string) {
-    const row = await db.getFirstAsync<FamiliaRow>(
-      `${SELECT_FAMILIAS} WHERE id = ? LIMIT 1`,
+  async function buscarCargosPorFamilia(id: string) {
+    const rows = await db.getAllAsync<CargoRow>(
+      `SELECT familia_id, cargo
+       FROM familia_cargos
+       WHERE familia_id = ?
+       ORDER BY cargo COLLATE NOCASE ASC`,
       id
     );
-    return row ? mapFamilia(row) : null;
+    return rows.map((row) => row.cargo);
+  }
+
+  async function substituirCargos(id: string, cargos: Cargo[]) {
+    await db.runAsync('DELETE FROM familia_cargos WHERE familia_id = ?', id);
+    for (const cargo of cargos) {
+      await db.runAsync(
+        'INSERT INTO familia_cargos (familia_id, cargo) VALUES (?, ?)',
+        id,
+        cargo
+      );
+    }
+  }
+
+  async function buscarPorId(id: string) {
+    const [row, cargos] = await Promise.all([
+      db.getFirstAsync<FamiliaRow>(`${SELECT_FAMILIAS} WHERE id = ? LIMIT 1`, id),
+      buscarCargosPorFamilia(id),
+    ]);
+    return row ? mapFamilia(row, cargos) : null;
   }
 
   return {
     async listar(filtros: FamiliaFiltros = {}) {
-      const rows = await db.getAllAsync<FamiliaRow>(
-        `${SELECT_FAMILIAS} ORDER BY nome COLLATE NOCASE ASC`
-      );
-      return rows.map(mapFamilia).filter((familia) => correspondeAosFiltros(familia, filtros));
+      const [rows, cargoRows] = await Promise.all([
+        db.getAllAsync<FamiliaRow>(
+          `${SELECT_FAMILIAS} ORDER BY nome COLLATE NOCASE ASC`
+        ),
+        db.getAllAsync<CargoRow>(
+          `SELECT familia_id, cargo
+           FROM familia_cargos
+           ORDER BY cargo COLLATE NOCASE ASC`
+        ),
+      ]);
+      const cargosPorFamilia = new Map<string, Cargo[]>();
+      for (const cargoRow of cargoRows) {
+        const cargos = cargosPorFamilia.get(cargoRow.familia_id) ?? [];
+        cargos.push(cargoRow.cargo);
+        cargosPorFamilia.set(cargoRow.familia_id, cargos);
+      }
+
+      return rows
+        .map((row) => mapFamilia(row, cargosPorFamilia.get(row.id) ?? []))
+        .filter((familia) => correspondeAosFiltros(familia, filtros));
     },
 
     buscarPorId,
@@ -154,26 +212,30 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
         atualizadoEm: timestamp,
       };
 
-      await db.runAsync(
-        `INSERT INTO familias (
-          id, nome, endereco, numero, bairro, cidade, telefone, cargo, ministerio,
-          situacao_religiosa, situacao_economica, residencia, criado_em, atualizado_em
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        familia.id,
-        familia.nome,
-        familia.endereco,
-        familia.numero,
-        familia.bairro,
-        familia.cidade,
-        familia.telefone,
-        familia.cargo,
-        familia.ministerio,
-        familia.situacaoReligiosa,
-        familia.situacaoEconomica,
-        familia.residencia,
-        familia.criadoEm,
-        familia.atualizadoEm
-      );
+      await db.withTransactionAsync(async () => {
+        await db.runAsync(
+          `INSERT INTO familias (
+            id, nome, endereco, cep, numero, bairro, cidade, telefone, cargo, ministerio,
+            situacao_religiosa, situacao_economica, residencia, criado_em, atualizado_em
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          familia.id,
+          familia.nome,
+          familia.endereco,
+          familia.cep,
+          familia.numero,
+          familia.bairro,
+          familia.cidade,
+          familia.telefone,
+          null,
+          familia.ministerio,
+          familia.situacaoReligiosa,
+          familia.situacaoEconomica,
+          familia.residencia,
+          familia.criadoEm,
+          familia.atualizadoEm
+        );
+        await substituirCargos(familia.id, familia.cargos);
+      });
 
       return familia;
     },
@@ -185,35 +247,38 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
       const data = validarFamiliaOuFalhar(input);
       const atualizadoEm = new Date().toISOString();
 
-      await db.runAsync(
-        `UPDATE familias SET
-          nome = ?,
-          endereco = ?,
-          numero = ?,
-          bairro = ?,
-          cidade = ?,
-          telefone = ?,
-          cargo = ?,
-          ministerio = ?,
-          situacao_religiosa = ?,
-          situacao_economica = ?,
-          residencia = ?,
-          atualizado_em = ?
-        WHERE id = ?`,
-        data.nome,
-        data.endereco,
-        data.numero,
-        data.bairro,
-        data.cidade,
-        data.telefone,
-        data.cargo,
-        data.ministerio,
-        data.situacaoReligiosa,
-        data.situacaoEconomica,
-        data.residencia,
-        atualizadoEm,
-        id
-      );
+      await db.withTransactionAsync(async () => {
+        await db.runAsync(
+          `UPDATE familias SET
+            nome = ?,
+            endereco = ?,
+            cep = ?,
+            numero = ?,
+            bairro = ?,
+            cidade = ?,
+            telefone = ?,
+            ministerio = ?,
+            situacao_religiosa = ?,
+            situacao_economica = ?,
+            residencia = ?,
+            atualizado_em = ?
+          WHERE id = ?`,
+          data.nome,
+          data.endereco,
+          data.cep,
+          data.numero,
+          data.bairro,
+          data.cidade,
+          data.telefone,
+          data.ministerio,
+          data.situacaoReligiosa,
+          data.situacaoEconomica,
+          data.residencia,
+          atualizadoEm,
+          id
+        );
+        await substituirCargos(id, data.cargos);
+      });
 
       return {
         ...atual,
