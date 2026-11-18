@@ -249,16 +249,10 @@ export function DashboardBreakdownCards({ resumo }: { resumo: DashboardResumo })
           </View>
           <View style={styles.backupCopy}>
             <ThemedText type="subtitle" style={styles.cardTitle}>
-              Integridade dos dados locais
+              Backup das famílias
             </ThemedText>
             <ThemedText type="small" themeColor="textSecondary">
-              Exporte uma planilha .xlsx na aba Backup para proteger os cadastros contra perda ou
-              desinstalação do aplicativo.
-            </ThemedText>
-          </View>
-          <View style={[styles.offlineChip, { backgroundColor: theme.input }]}>
-            <ThemedText type="smallBold" themeColor="textSecondary">
-              Off-line
+              Salve ou importe uma cópia dos seus cadastros.
             </ThemedText>
           </View>
         </View>
@@ -275,7 +269,7 @@ export function DashboardBreakdownCards({ resumo }: { resumo: DashboardResumo })
           ]}>
           <AppIcon name="database" color="#FFFFFF" size={20} />
           <ThemedText type="smallBold" style={styles.primaryButtonText}>
-            Ir para aba Backup
+            Ir para Backup
           </ThemedText>
         </Pressable>
       </ThemedView>
@@ -407,11 +401,6 @@ const styles = StyleSheet.create({
     fontSize: 19,
     lineHeight: 26,
     flexShrink: 1,
-  },
-  offlineChip: {
-    borderRadius: 999,
-    paddingHorizontal: Spacing.two,
-    paddingVertical: Spacing.one,
   },
   primaryAction: {
     width: '100%',
