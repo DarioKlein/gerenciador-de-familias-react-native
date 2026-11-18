@@ -11,6 +11,11 @@ const icons = {
   chevronRight: { ios: 'chevron.right', android: 'chevron_right', web: 'chevron_right' },
   close: { ios: 'xmark', android: 'close', web: 'close' },
   database: { ios: 'externaldrive', android: 'database', web: 'database' },
+  directions: {
+    ios: 'arrow.triangle.turn.up.right.diamond',
+    android: 'directions',
+    web: 'directions',
+  },
   edit: { ios: 'pencil', android: 'edit', web: 'edit' },
   filter: {
     ios: 'line.3.horizontal.decrease',
@@ -20,6 +25,7 @@ const icons = {
   home: { ios: 'house', android: 'home', web: 'home' },
   info: { ios: 'info.circle', android: 'info', web: 'info' },
   location: { ios: 'mappin.and.ellipse', android: 'location_on', web: 'location_on' },
+  map: { ios: 'map', android: 'map', web: 'map' },
   people: { ios: 'person.2', android: 'groups', web: 'groups' },
   phone: { ios: 'phone', android: 'call', web: 'call' },
   religious: { ios: 'building.columns', android: 'church', web: 'church' },
