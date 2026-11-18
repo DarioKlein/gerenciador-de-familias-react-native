@@ -2,6 +2,7 @@ import type { PropsWithChildren, ReactNode } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppBrandHeader } from '@/components/app-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -13,18 +14,26 @@ type ProductScreenProps = PropsWithChildren<{
 }>;
 
 export function ProductScreen({ title, description, action, children }: ProductScreenProps) {
+  const hasHeader = Boolean(title || description || action);
+
   return (
     <ThemedView style={styles.root}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView
+        style={styles.safeArea}
+        edges={hasHeader ? undefined : ['left', 'right', 'bottom']}>
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[
+            styles.scrollContent,
+            !hasHeader ? styles.stackScrollTop : undefined,
+          ]}
           keyboardShouldPersistTaps="handled">
           <View style={styles.content}>
-            {title || description || action ? (
+            {hasHeader ? (
               <View style={styles.header}>
                 <View style={styles.headerText}>
-                  {title ? <ThemedText type="subtitle">{title}</ThemedText> : null}
-                  {description ? (
+                  {title ? (
+                    <AppBrandHeader title={title} description={description} />
+                  ) : description ? (
                     <ThemedText themeColor="textSecondary">{description}</ThemedText>
                   ) : null}
                 </View>
@@ -49,14 +58,17 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     alignItems: 'center',
-    paddingTop: Platform.select({ web: 96, default: Spacing.four }),
+    paddingTop: Platform.select({ web: 96, default: Spacing.three }),
     paddingBottom: Spacing.four,
-    paddingHorizontal: Spacing.four,
+    paddingHorizontal: Spacing.three,
+  },
+  stackScrollTop: {
+    paddingTop: Spacing.three,
   },
   content: {
     width: '100%',
     maxWidth: MaxContentWidth,
-    gap: Spacing.four,
+    gap: Spacing.three,
   },
   header: {
     flexDirection: 'row',
@@ -66,6 +78,5 @@ const styles = StyleSheet.create({
   },
   headerText: {
     flex: 1,
-    gap: Spacing.one,
   },
 });

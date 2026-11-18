@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppBrandHeader } from '@/components/app-header';
 import { AppIcon } from '@/components/app-icon';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -104,12 +105,10 @@ export default function FamiliasScreen() {
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           ListHeaderComponent={
             <View style={styles.header}>
-              <View style={styles.titleBlock}>
-                <ThemedText type="subtitle">Famílias</ThemedText>
-                <ThemedText themeColor="textSecondary">
-                  Consulte e encontre cadastros mesmo sem internet.
-                </ThemedText>
-              </View>
+              <AppBrandHeader
+                title="Famílias"
+                description="Consulte e encontre cadastros mesmo sem internet."
+              />
 
               <Pressable
                 accessibilityRole="button"
@@ -279,9 +278,6 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
     paddingTop: Spacing.three,
     paddingBottom: Spacing.four,
-  },
-  titleBlock: {
-    gap: Spacing.one,
   },
   primaryAction: {
     width: '100%',

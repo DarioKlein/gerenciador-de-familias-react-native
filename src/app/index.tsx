@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppBrandHeader } from '@/components/app-header';
 import { AppIcon } from '@/components/app-icon';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -77,12 +78,10 @@ export default function HomeScreen() {
           }>
           <View style={styles.content}>
             <View style={styles.header}>
-              <View style={styles.titleBlock}>
-                <ThemedText type="subtitle">Início</ThemedText>
-                <ThemedText themeColor="textSecondary">
-                  Visão geral dos cadastros de famílias.
-                </ThemedText>
-              </View>
+              <AppBrandHeader
+                title="Início"
+                description="Visão geral dos cadastros de famílias."
+              />
 
               {resumo.totalFamilias > 0 ? (
                 <Pressable
@@ -154,9 +153,6 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: Spacing.three,
-  },
-  titleBlock: {
-    gap: Spacing.one,
   },
   primaryAction: {
     width: '100%',
