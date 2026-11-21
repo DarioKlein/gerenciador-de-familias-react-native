@@ -95,7 +95,7 @@ function normalizarBusca(value: string) {
     .trim();
 }
 
-function correspondeAosFiltros(familia: Familia, filtros: FamiliaFiltros) {
+export function correspondeAosFiltros(familia: Familia, filtros: FamiliaFiltros) {
   if (filtros.setor && familia.setor !== filtros.setor) return false;
   if (filtros.bairro && familia.bairro !== filtros.bairro) return false;
   if (filtros.cidade && familia.cidade !== filtros.cidade) return false;
@@ -120,23 +120,15 @@ function correspondeAosFiltros(familia: Familia, filtros: FamiliaFiltros) {
     : '';
   if (
     buscaNumerica &&
-    ((familia.telefone &&
-      obterDigitosTelefone(familia.telefone).includes(buscaNumerica)) ||
-      (familia.cep && familia.cep.replace(/\D/g, '').includes(buscaNumerica)))
+    familia.telefone &&
+    obterDigitosTelefone(familia.telefone).includes(buscaNumerica)
   ) {
     return true;
   }
 
-  return [
-    familia.nome,
-    familia.endereco,
-    familia.numero,
-    familia.bairro,
-    familia.cidade,
-    familia.setor,
-    familia.telefone,
-    familia.cep,
-  ].some((value) => value && normalizarBusca(value).includes(busca));
+  return [familia.nome, familia.telefone].some(
+    (value) => value && normalizarBusca(value).includes(busca)
+  );
 }
 
 export function createFamiliasRepository(db: SQLiteDatabase) {

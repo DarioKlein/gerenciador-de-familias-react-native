@@ -1,7 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Pressable,
   ScrollView,
@@ -16,8 +15,10 @@ import { AppIcon } from '@/components/app-icon';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { correspondeAosFiltros } from '@/database/familias-repository';
 import { useFamiliasRepository } from '@/database/use-familias-repository';
 import { FamiliaCard } from '@/features/familias/components/familia-card';
+import { FamiliaCardSkeletonList } from '@/features/familias/components/familia-card-skeleton';
 import { SelectField } from '@/features/familias/components/select-field';
 import {
   CIDADES,
@@ -31,12 +32,15 @@ import {
 import type { Familia } from '@/features/familias/types';
 import { useTheme } from '@/hooks/use-theme';
 
+const SEARCH_DEBOUNCE_MS = 350;
+
 export default function FamiliasScreen() {
   const theme = useTheme();
   const repository = useFamiliasRepository();
-  const [familias, setFamilias] = useState<Familia[]>([]);
+  const [todasFamilias, setTodasFamilias] = useState<Familia[]>([]);
   const [bairros, setBairros] = useState<string[]>([]);
   const [busca, setBusca] = useState('');
+  const [buscaDebounced, setBuscaDebounced] = useState('');
   const [setor, setSetor] = useState<Setor | null>(null);
   const [cidade, setCidade] = useState<Cidade | null>(null);
   const [bairro, setBairro] = useState<string | null>(null);
@@ -45,6 +49,23 @@ export default function FamiliasScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (busca.trim().length === 0) return;
+
+    const timeout = setTimeout(() => {
+      setBuscaDebounced(busca);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => clearTimeout(timeout);
+  }, [busca]);
+
+  const handleChangeBusca = (value: string) => {
+    setBusca(value);
+    if (value.trim().length === 0) {
+      setBuscaDebounced('');
+    }
+  };
+
   const load = useCallback(
     async (showRefresh = false) => {
       try {
@@ -52,16 +73,10 @@ export default function FamiliasScreen() {
         else setLoading(true);
         setError(null);
         const [items, neighborhoodOptions] = await Promise.all([
-          repository.listar({
-            busca,
-            setor,
-            cidade,
-            bairro,
-            situacaoReligiosa: situacao,
-          }),
+          repository.listar(),
           repository.listarBairros(),
         ]);
-        setFamilias(items);
+        setTodasFamilias(items);
         setBairros(neighborhoodOptions);
       } catch (loadError) {
         setError(
@@ -74,7 +89,7 @@ export default function FamiliasScreen() {
         setRefreshing(false);
       }
     },
-    [bairro, busca, cidade, repository, setor, situacao]
+    [repository]
   );
 
   useFocusEffect(
@@ -83,8 +98,27 @@ export default function FamiliasScreen() {
     }, [load])
   );
 
+  const familias = useMemo(
+    () =>
+      todasFamilias.filter((familia) =>
+        correspondeAosFiltros(familia, {
+          busca: buscaDebounced,
+          setor,
+          cidade,
+          bairro,
+          situacaoReligiosa: situacao,
+        })
+      ),
+    [bairro, buscaDebounced, cidade, setor, situacao, todasFamilias]
+  );
+
+  const showLoading = loading && todasFamilias.length === 0;
+  const aguardandoBusca = busca.trim() !== buscaDebounced.trim();
+  const exibirSkeleton = showLoading || aguardandoBusca;
+
   const clearFilters = () => {
     setBusca('');
+    setBuscaDebounced('');
     setSetor(null);
     setCidade(null);
     setBairro(null);
@@ -97,11 +131,11 @@ export default function FamiliasScreen() {
     <ThemedView style={styles.root}>
       <SafeAreaView style={styles.safeArea}>
         <FlatList
-          data={familias}
+          data={exibirSkeleton ? [] : familias}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
-          scrollEnabled={familias.length > 0 || hasFilters}
-          bounces={familias.length > 0}
+          scrollEnabled={exibirSkeleton || familias.length > 0 || hasFilters}
+          bounces={!exibirSkeleton && familias.length > 0}
           alwaysBounceVertical={false}
           refreshing={refreshing}
           onRefresh={() => void load(true)}
@@ -140,8 +174,8 @@ export default function FamiliasScreen() {
                 <AppIcon name="search" color={theme.textSecondary} size={22} />
                 <TextInput
                   value={busca}
-                  onChangeText={setBusca}
-                  placeholder="Buscar por nome, rua ou telefone"
+                  onChangeText={handleChangeBusca}
+                  placeholder="Buscar por nome ou telefone"
                   placeholderTextColor={theme.textSecondary}
                   selectionColor={theme.primary}
                   returnKeyType="search"
@@ -151,7 +185,7 @@ export default function FamiliasScreen() {
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel="Limpar busca"
-                    onPress={() => setBusca('')}
+                    onPress={() => handleChangeBusca('')}
                     style={styles.clearSearch}>
                     <AppIcon name="close" color={theme.textSecondary} size={18} />
                   </Pressable>
@@ -197,7 +231,11 @@ export default function FamiliasScreen() {
                 <View style={styles.resultCount}>
                   <AppIcon name="filter" color={theme.primary} size={19} />
                   <ThemedText type="smallBold">
-                    {loading ? 'Carregando…' : `${familias.length} ${familias.length === 1 ? 'família' : 'famílias'}`}
+                    {showLoading
+                      ? 'Carregando…'
+                      : aguardandoBusca
+                        ? 'Buscando…'
+                        : `${familias.length} ${familias.length === 1 ? 'família' : 'famílias'}`}
                   </ThemedText>
                 </View>
                 {hasFilters ? (
@@ -227,10 +265,8 @@ export default function FamiliasScreen() {
             />
           )}
           ListEmptyComponent={
-            loading ? (
-              <View style={styles.loadingState}>
-                <ActivityIndicator size="large" color={theme.primary} />
-              </View>
+            exibirSkeleton ? (
+              <FamiliaCardSkeletonList />
             ) : (
               <View style={styles.emptyState}>
                 <View style={[styles.emptyIcon, { backgroundColor: theme.primarySoft }]}>
@@ -353,11 +389,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: Spacing.four,
     paddingVertical: Spacing.five,
-  },
-  loadingState: {
-    minHeight: 260,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   emptyIcon: {
     width: 88,
