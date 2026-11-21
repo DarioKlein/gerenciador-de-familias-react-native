@@ -25,6 +25,7 @@ export const COLUNAS_FAMILIAS = [
   'numero',
   'bairro',
   'cidade',
+  'setor',
   'cep',
   'telefone',
   'cargos',
@@ -168,6 +169,7 @@ function criarLinhasLeiame() {
     ['numero', 'Não', 'Número do imóvel ou complemento (ex.: 142, 45-A, S/N, Fundos).'],
     ['bairro', 'Não', 'Nome do bairro.'],
     ['cidade', 'Não', `Localidade / distrito: ${CIDADES.join(' | ')}`],
+    ['setor', 'Não', 'Identificado automaticamente pelo bairro ou distrito (Setor 1 a 7 ou Patrimônios).'],
     ['cep', 'Não', 'CEP de 8 dígitos (ex.: 19880-000).'],
     ['telefone', 'Não', 'Telefone com DDD (até 11 dígitos).'],
     ['cargos', 'Não', `Um ou mais valores separados por vírgula: ${CARGOS.join(' | ')}`],
@@ -188,6 +190,7 @@ export function gerarBytesPlanilhaBackup(familias: readonly Familia[]): Uint8Arr
     numero: familia.numero ?? '',
     bairro: familia.bairro ?? '',
     cidade: familia.cidade ?? '',
+    setor: familia.setor ?? '',
     cep: familia.cep ?? '',
     telefone: familia.telefone ?? '',
     cargos: familia.cargos.join(', '),
@@ -209,6 +212,7 @@ export function gerarBytesPlanilhaBackup(familias: readonly Familia[]): Uint8Arr
     { wch: 12 }, // numero
     { wch: 20 }, // bairro
     { wch: 18 }, // cidade
+    { wch: 15 }, // setor
     { wch: 12 }, // cep
     { wch: 17 }, // telefone
     { wch: 32 }, // cargos
