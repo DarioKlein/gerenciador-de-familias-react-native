@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppBrandHeader } from '@/components/app-header';
 import { AppIcon } from '@/components/app-icon';
-import { ThemedText } from '@/components/themed-text';
+import { MAX_FONT_SIZE_MULTIPLIER, ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { correspondeAosFiltros } from '@/database/familias-repository';
@@ -129,7 +129,7 @@ export default function FamiliasScreen() {
 
   return (
     <ThemedView style={styles.root}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
         <FlatList
           data={exibirSkeleton ? [] : familias}
           keyExtractor={(item) => item.id}
@@ -175,6 +175,7 @@ export default function FamiliasScreen() {
                 <TextInput
                   value={busca}
                   onChangeText={handleChangeBusca}
+                  maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
                   placeholder="Buscar por nome ou telefone"
                   placeholderTextColor={theme.textSecondary}
                   selectionColor={theme.primary}

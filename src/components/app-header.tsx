@@ -72,6 +72,7 @@ type AppBrandHeaderProps = {
 
 export function AppBrandHeader({ title, description }: AppBrandHeaderProps) {
   const theme = useTheme();
+  const eyebrow = title === APP_NAME ? 'Cadastro local' : APP_NAME;
 
   return (
     <View style={styles.brandHeader}>
@@ -84,7 +85,7 @@ export function AppBrandHeader({ title, description }: AppBrandHeaderProps) {
         />
         <View style={styles.brandTitleBlock}>
           <ThemedText type="smallBold" style={{ color: theme.primary }}>
-            {APP_NAME}
+            {eyebrow}
           </ThemedText>
           <ThemedText type="subtitle">{title}</ThemedText>
         </View>

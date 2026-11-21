@@ -64,7 +64,7 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.root}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView edges={['top', 'left', 'right']} style={styles.safeArea}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}

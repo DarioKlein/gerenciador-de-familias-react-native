@@ -17,17 +17,17 @@ export default function FamiliasLayout() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="nova">
         <Stack.Header asChild>
-          <AppHeader title="Nova família" subtitle="Preencha os dados do cadastro" />
+          <AppHeader title="Nova família" />
         </Stack.Header>
       </Stack.Screen>
       <Stack.Screen name="[id]/index">
         <Stack.Header asChild>
-          <AppHeader title="Detalhes da família" subtitle="Consulta de cadastro" />
+          <AppHeader title="Detalhes da família" />
         </Stack.Header>
       </Stack.Screen>
       <Stack.Screen name="[id]/editar">
         <Stack.Header asChild>
-          <AppHeader title="Editar família" subtitle="Atualize os dados do cadastro" />
+          <AppHeader title="Editar família" />
         </Stack.Header>
       </Stack.Screen>
     </Stack>
