@@ -15,7 +15,8 @@
         "backgroundColor": "#077753",
         "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.darioklein.GerenciamentoDeFamiliasMobile"
     },
     "web": {
       "output": "server",
