@@ -269,43 +269,6 @@ export default function BackupScreen() {
         </Pressable>
       </ThemedView>
 
-      <ThemedView
-        type="backgroundElement"
-        style={[styles.card, { borderColor: theme.border }]}>
-        <View style={styles.cardHeader}>
-          <View style={[styles.cardIcon, { backgroundColor: theme.primarySoft }]}>
-            <AppIcon name="folder" color={theme.primary} size={22} />
-          </View>
-          <View style={styles.cardCopy}>
-            <ThemedText type="subtitle" style={styles.cardTitle}>
-              Importar planilha antiga
-            </ThemedText>
-            <ThemedText themeColor="textSecondary">
-              Importe os dados da planilha antiga (SETOR_7.xlsx) para trazer os cadastros iniciais
-              ao aplicativo.
-            </ThemedText>
-          </View>
-        </View>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityState={{ disabled: true }}
-          disabled
-          style={[
-            styles.secondaryButton,
-            {
-              backgroundColor: theme.input,
-              borderColor: theme.border,
-              opacity: 0.65,
-            },
-          ]}>
-          <AppIcon name="folder" color={theme.textSecondary} size={20} />
-          <ThemedText type="smallBold" themeColor="textSecondary">
-            Em breve na próxima etapa
-          </ThemedText>
-        </Pressable>
-      </ThemedView>
-
       <View
         style={[
           styles.privacyBanner,
