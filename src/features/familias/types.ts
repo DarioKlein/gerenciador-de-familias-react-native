@@ -2,6 +2,7 @@ import type {
   Cargo,
   Cidade,
   Ministerio,
+  Setor,
   SituacaoEconomica,
   SituacaoReligiosa,
   TipoResidencia,
@@ -26,6 +27,7 @@ export type FamiliaDados = {
 
 export type Familia = FamiliaDados & {
   id: string;
+  setor: Setor | null;
   criadoEm: ISODateTime;
   atualizadoEm: ISODateTime;
 };
@@ -48,6 +50,7 @@ export type FamiliaInput = {
 
 export type FamiliaFiltros = {
   busca?: string;
+  setor?: Setor | null;
   bairro?: string | null;
   cidade?: Cidade | null;
   situacaoReligiosa?: SituacaoReligiosa | null;

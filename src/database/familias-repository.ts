@@ -1,13 +1,15 @@
 import * as Crypto from 'expo-crypto';
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-import type {
-  Cargo,
-  Cidade,
-  Ministerio,
-  SituacaoEconomica,
-  SituacaoReligiosa,
-  TipoResidencia,
+import {
+  BAIRROS_CATALOGO,
+  obterSetorDaFamilia,
+  type Cargo,
+  type Cidade,
+  type Ministerio,
+  type SituacaoEconomica,
+  type SituacaoReligiosa,
+  type TipoResidencia,
 } from '@/features/familias/constants';
 import type {
   Familia,
@@ -73,6 +75,7 @@ function mapFamilia(row: FamiliaRow, cargos: Cargo[]): Familia {
     numero: row.numero,
     bairro: row.bairro,
     cidade: row.cidade,
+    setor: obterSetorDaFamilia({ cidade: row.cidade, bairro: row.bairro }),
     telefone: row.telefone,
     cargos,
     ministerio: row.ministerio,
@@ -93,6 +96,7 @@ function normalizarBusca(value: string) {
 }
 
 function correspondeAosFiltros(familia: Familia, filtros: FamiliaFiltros) {
+  if (filtros.setor && familia.setor !== filtros.setor) return false;
   if (filtros.bairro && familia.bairro !== filtros.bairro) return false;
   if (filtros.cidade && familia.cidade !== filtros.cidade) return false;
   if (
@@ -129,6 +133,7 @@ function correspondeAosFiltros(familia: Familia, filtros: FamiliaFiltros) {
     familia.numero,
     familia.bairro,
     familia.cidade,
+    familia.setor,
     familia.telefone,
     familia.cep,
   ].some((value) => value && normalizarBusca(value).includes(busca));
@@ -205,7 +210,18 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
         WHERE bairro IS NOT NULL AND length(trim(bairro)) > 0
         ORDER BY bairro COLLATE NOCASE ASC
       `);
-      return rows.map((row) => row.bairro);
+      const unicos = new Map<string, string>();
+      for (const row of rows) {
+        const chave = normalizarBusca(row.bairro);
+        if (!unicos.has(chave)) unicos.set(chave, row.bairro);
+      }
+      for (const bairro of BAIRROS_CATALOGO) {
+        const chave = normalizarBusca(bairro);
+        if (!unicos.has(chave)) unicos.set(chave, bairro);
+      }
+      return Array.from(unicos.values()).sort((a, b) =>
+        a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
+      );
     },
 
     async criar(input: FamiliaInput) {
@@ -214,6 +230,7 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
       const familia: Familia = {
         id: Crypto.randomUUID(),
         ...data,
+        setor: obterSetorDaFamilia({ cidade: data.cidade, bairro: data.bairro }),
         criadoEm: timestamp,
         atualizadoEm: timestamp,
       };
@@ -289,6 +306,7 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
       return {
         ...atual,
         ...data,
+        setor: obterSetorDaFamilia({ cidade: data.cidade, bairro: data.bairro }),
         atualizadoEm,
       };
     },
