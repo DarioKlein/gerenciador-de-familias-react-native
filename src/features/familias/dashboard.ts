@@ -1,10 +1,12 @@
 import {
   CIDADES,
   getLocalidadeLabel,
+  SETORES,
   SITUACOES_ECONOMICAS,
   SITUACOES_RELIGIOSAS,
   TIPOS_RESIDENCIA,
   type Cidade,
+  type Setor,
   type SituacaoEconomica,
   type SituacaoReligiosa,
   type TipoResidencia,
@@ -23,8 +25,10 @@ export type DashboardResumo = {
   totalFamilias: number;
   totalBairros: number;
   totalLocalidades: number;
+  totalSetores: number;
   cadastrosIncompletos: number;
   ultimaAtualizacao: string | null;
+  porSetor: DashboardItemContagem<Setor | 'Não informado'>[];
   porLocalidade: DashboardItemContagem<Cidade | 'Não informado'>[];
   topBairros: DashboardItemContagem[];
   semBairro: number;
@@ -129,12 +133,14 @@ export function calcularResumoDashboard(familias: readonly Familia[]): Dashboard
   const totalFamilias = familias.length;
 
   const localidadesContagem = new Map<Cidade, number>();
+  const setoresContagem = new Map<Setor, number>();
   const bairrosContagem = new Map<string, { label: string; total: number }>();
   const religiosaContagem = new Map<SituacaoReligiosa, number>();
   const economicaContagem = new Map<SituacaoEconomica, number>();
   const residenciaContagem = new Map<TipoResidencia, number>();
 
   let semLocalidade = 0;
+  let semSetor = 0;
   let semBairro = 0;
   let semSituacaoReligiosa = 0;
   let semSituacaoEconomica = 0;
@@ -166,6 +172,15 @@ export function calcularResumoDashboard(familias: readonly Familia[]): Dashboard
       );
     } else {
       semLocalidade += 1;
+    }
+
+    if (familia.setor) {
+      setoresContagem.set(
+        familia.setor,
+        (setoresContagem.get(familia.setor) ?? 0) + 1
+      );
+    } else {
+      semSetor += 1;
     }
 
     const bairroLimpo = normalizarEspacos(familia.bairro);
@@ -244,12 +259,24 @@ export function calcularResumoDashboard(familias: readonly Familia[]): Dashboard
       criarItemContagem(chave, item.label, item.total, totalFamilias, maiorTotalBairro)
     );
 
+  const porSetor = contarListaFixa(
+    SETORES,
+    setoresContagem,
+    semSetor,
+    totalFamilias
+  );
+  const totalSetores = SETORES.filter(
+    (setor) => (setoresContagem.get(setor) ?? 0) > 0
+  ).length;
+
   return {
     totalFamilias,
     totalBairros: bairrosContagem.size,
     totalLocalidades,
+    totalSetores,
     cadastrosIncompletos,
     ultimaAtualizacao,
+    porSetor,
     porLocalidade,
     topBairros,
     semBairro,

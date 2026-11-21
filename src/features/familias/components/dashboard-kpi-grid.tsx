@@ -92,20 +92,20 @@ export function DashboardKpiGrid({ resumo }: { resumo: DashboardResumo }) {
             style={[styles.kpiCard, { borderColor: theme.border }]}>
             <View style={styles.kpiTop}>
               <ThemedText type="small" themeColor="textSecondary" style={styles.kpiLabel}>
-                Localidades
+                Setores
               </ThemedText>
-              <View style={[styles.kpiIcon, { backgroundColor: theme.input }]}>
-                <AppIcon name="home" color={theme.textSecondary} size={19} />
+              <View style={[styles.kpiIcon, { backgroundColor: theme.primarySoft }]}>
+                <AppIcon name="filter" color={theme.primary} size={19} />
               </View>
             </View>
             <View style={styles.kpiValueRow}>
-              <ThemedText style={styles.kpiValue}>{resumo.totalLocalidades}</ThemedText>
+              <ThemedText style={styles.kpiValue}>{resumo.totalSetores}</ThemedText>
               <ThemedText type="small" themeColor="textSecondary">
-                {resumo.totalLocalidades === 1 ? 'localidade' : 'localidades'}
+                {resumo.totalSetores === 1 ? 'setor ativo' : 'setores ativos'}
               </ThemedText>
             </View>
             <ThemedText type="small" themeColor="textSecondary">
-              Cândido Mota/SP
+              Setores 1 a 7 e Patrimônios
             </ThemedText>
           </ThemedView>
 

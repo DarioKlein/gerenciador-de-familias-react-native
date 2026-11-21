@@ -38,6 +38,46 @@ export function DashboardBreakdownCards({ resumo }: { resumo: DashboardResumo })
   return (
     <View style={styles.sections}>
       <DashboardSection
+        title="Famílias por setor"
+        icon="filter"
+        trailing={
+          <View style={[styles.sectionPill, { backgroundColor: theme.input }]}>
+            <ThemedText type="smallBold" themeColor="textSecondary">
+              {resumo.totalSetores}{' '}
+              {resumo.totalSetores === 1 ? 'setor' : 'setores'}
+            </ThemedText>
+          </View>
+        }>
+        <View style={styles.barList}>
+          {resumo.porSetor.map((item, index) => {
+            const barColor =
+              item.chave === 'Não informado'
+                ? theme.textSecondary
+                : item.chave === 'Patrimônios'
+                  ? '#5F3A91'
+                  : LOCALIDADE_BAR_COLORS[index % LOCALIDADE_BAR_COLORS.length];
+
+            return (
+              <View key={item.chave} style={styles.localityItem}>
+                <View style={styles.localityRowHeader}>
+                  <ThemedText type="smallBold" style={styles.localityLabel}>
+                    {item.label}
+                  </ThemedText>
+                  <ThemedText type="smallBold">
+                    {item.total}{' '}
+                    <ThemedText type="small" themeColor="textSecondary">
+                      ({item.percentual}%)
+                    </ThemedText>
+                  </ThemedText>
+                </View>
+                <ProgressBar ratio={item.proporcao} color={barColor} hasValue={item.total > 0} />
+              </View>
+            );
+          })}
+        </View>
+      </DashboardSection>
+
+      <DashboardSection
         title="Famílias por localidade"
         icon="location"
         trailing={
