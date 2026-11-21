@@ -81,14 +81,18 @@ export function FamiliaCard({ familia, onPress }: FamiliaCardProps) {
       </View>
 
       <View style={[styles.footer, { borderTopColor: theme.border }]}>
-        <View style={styles.metaRow}>
+        <View style={[styles.metaRow, styles.footerPhone]}>
           <AppIcon name="phone" color={theme.textSecondary} size={17} />
-          <ThemedText type="small" themeColor="textSecondary">
+          <ThemedText
+            type="small"
+            themeColor="textSecondary"
+            numberOfLines={1}
+            style={styles.metaText}>
             {familia.telefone ?? 'Telefone não informado'}
           </ThemedText>
         </View>
-        <View style={styles.metaRow}>
-          <ThemedText type="smallBold" style={{ color: theme.primary }}>
+        <View style={[styles.metaRow, styles.footerAction]}>
+          <ThemedText type="smallBold" numberOfLines={1} style={{ color: theme.primary }}>
             Ver detalhes
           </ThemedText>
           <AppIcon name="chevronRight" color={theme.primary} size={17} />
@@ -142,6 +146,12 @@ const styles = StyleSheet.create({
   },
   metaText: {
     flex: 1,
+  },
+  footerPhone: {
+    flex: 1,
+  },
+  footerAction: {
+    flexShrink: 0,
   },
   footer: {
     minHeight: 52,

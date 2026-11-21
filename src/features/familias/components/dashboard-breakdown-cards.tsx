@@ -130,23 +130,18 @@ export function DashboardBreakdownCards({ resumo }: { resumo: DashboardResumo })
         ) : (
           <View style={styles.barList}>
             {resumo.topBairros.map((item, index) => (
-              <View key={item.chave} style={styles.neighborhoodRow}>
-                <ThemedText
-                  type="smallBold"
-                  numberOfLines={1}
-                  style={styles.neighborhoodName}>
-                  {item.label}
-                </ThemedText>
-                <View style={styles.neighborhoodBarWrap}>
-                  <ProgressBar
-                    ratio={item.proporcao}
-                    color={index < 2 ? theme.primary : '#12627A'}
-                    hasValue={item.total > 0}
-                  />
+              <View key={item.chave} style={styles.localityItem}>
+                <View style={styles.localityRowHeader}>
+                  <ThemedText type="smallBold" style={styles.localityLabel}>
+                    {item.label}
+                  </ThemedText>
+                  <ThemedText type="smallBold">{item.total}</ThemedText>
                 </View>
-                <ThemedText type="smallBold" style={styles.neighborhoodCount}>
-                  {item.total}
-                </ThemedText>
+                <ProgressBar
+                  ratio={item.proporcao}
+                  color={index < 2 ? theme.primary : '#12627A'}
+                  hasValue={item.total > 0}
+                />
               </View>
             ))}
           </View>
@@ -232,10 +227,19 @@ export function DashboardBreakdownCards({ resumo }: { resumo: DashboardResumo })
                   ]}>
                   {item.total}
                 </ThemedText>
-                <ThemedText type="smallBold" numberOfLines={1}>
+                <ThemedText
+                  type="smallBold"
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.8}>
                   {item.label}
                 </ThemedText>
-                <ThemedText type="small" themeColor="textSecondary">
+                <ThemedText
+                  type="small"
+                  themeColor="textSecondary"
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.85}>
                   {item.percentual}% do total
                 </ThemedText>
               </View>
@@ -340,21 +344,6 @@ const styles = StyleSheet.create({
   localityLabel: {
     flex: 1,
   },
-  neighborhoodRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.two,
-  },
-  neighborhoodName: {
-    width: 112,
-  },
-  neighborhoodBarWrap: {
-    flex: 1,
-  },
-  neighborhoodCount: {
-    minWidth: 28,
-    textAlign: 'right',
-  },
   religiousPills: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -390,6 +379,7 @@ const styles = StyleSheet.create({
   economicTile: {
     flexBasis: '47%',
     flexGrow: 1,
+    minWidth: 0,
     gap: Spacing.half,
     borderWidth: 1,
     borderRadius: 18,

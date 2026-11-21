@@ -46,7 +46,13 @@ export function BackupImportPreviewModal({
               <AppIcon name="table" color={theme.primary} size={22} />
             </View>
             <View style={styles.headerCopy}>
-              <ThemedText type="subtitle">Pré-visualização</ThemedText>
+              <ThemedText
+                type="subtitle"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.85}>
+                Resumo do backup
+              </ThemedText>
               <ThemedText type="small" themeColor="textSecondary" numberOfLines={1}>
                 {fileName}
               </ThemedText>
@@ -66,7 +72,12 @@ export function BackupImportPreviewModal({
               <ThemedText style={[styles.summaryCount, { color: theme.primary }]}>
                 {preview.novasCount}
               </ThemedText>
-              <ThemedText type="smallBold" style={{ color: theme.primary }}>
+              <ThemedText
+                type="smallBold"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+                style={{ color: theme.primary }}>
                 {preview.novasCount === 1 ? 'Nova' : 'Novas'}
               </ThemedText>
             </View>
@@ -75,8 +86,13 @@ export function BackupImportPreviewModal({
               <ThemedText style={[styles.summaryCount, { color: '#12627A' }]}>
                 {preview.atualizacoesCount}
               </ThemedText>
-              <ThemedText type="smallBold" style={{ color: '#12627A' }}>
-                {preview.atualizacoesCount === 1 ? 'Atualização' : 'Atualizações'}
+              <ThemedText
+                type="smallBold"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+                style={{ color: '#12627A' }}>
+                Atualizar
               </ThemedText>
             </View>
 
@@ -100,6 +116,9 @@ export function BackupImportPreviewModal({
               </ThemedText>
               <ThemedText
                 type="smallBold"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
                 style={{
                   color:
                     preview.invalidas.length > 0 ? theme.danger : theme.textSecondary,

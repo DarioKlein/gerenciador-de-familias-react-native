@@ -100,7 +100,12 @@ export function FamiliaHeroCard({
           ]}>
           <View style={styles.buttonContent}>
             <AppIcon name="edit" color="#FFFFFF" size={20} />
-            <ThemedText type="smallBold" style={styles.primaryButtonText}>
+            <ThemedText
+              type="smallBold"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+              style={styles.primaryButtonText}>
               Editar
             </ThemedText>
           </View>
@@ -121,7 +126,12 @@ export function FamiliaHeroCard({
           ]}>
           <View style={styles.buttonContent}>
             <AppIcon name="trash" color={theme.danger} size={20} />
-            <ThemedText type="smallBold" style={{ color: theme.danger }}>
+            <ThemedText
+              type="smallBold"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+              style={{ color: theme.danger }}>
               Excluir
             </ThemedText>
           </View>
@@ -218,6 +228,9 @@ export function FamiliaAddressSection({ familia }: { familia: Familia }) {
               />
               <ThemedText
                 type="smallBold"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.85}
                 style={
                   enderecoCompleto
                     ? styles.primaryButtonText
@@ -255,6 +268,9 @@ export function FamiliaAddressSection({ familia }: { familia: Familia }) {
               />
               <ThemedText
                 type="smallBold"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.85}
                 style={{
                   color: enderecoCompleto ? theme.primary : theme.textSecondary,
                 }}>
@@ -497,10 +513,11 @@ const styles = StyleSheet.create({
   actionButton: {
     flex: 1,
     minHeight: 52,
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 18,
-    paddingHorizontal: Spacing.three,
+    paddingHorizontal: Spacing.two,
   },
   deleteActionButton: {
     borderWidth: 1,
@@ -509,10 +526,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   buttonContent: {
+    maxWidth: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.two,
+    gap: 6,
   },
   card: {
     gap: Spacing.two,
