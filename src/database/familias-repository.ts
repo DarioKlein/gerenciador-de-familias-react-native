@@ -11,11 +11,17 @@ import type {
 } from '@/features/familias/constants';
 import type {
   Familia,
+  FamiliaDados,
   FamiliaFiltros,
   FamiliaInput,
 } from '@/features/familias/types';
 import { obterDigitosTelefone } from '@/features/familias/telefone';
 import { validarFamiliaOuFalhar } from '@/features/familias/validation';
+
+export type FamiliaImportacaoItem = FamiliaDados & {
+  id: string;
+  criadoEm?: string | null;
+};
 
 type FamiliaRow = {
   id: string;
@@ -290,6 +296,89 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
     async excluir(id: string) {
       const result = await db.runAsync('DELETE FROM familias WHERE id = ?', id);
       return result.changes > 0;
+    },
+
+    async importarLote(itens: readonly FamiliaImportacaoItem[]) {
+      let criados = 0;
+      let atualizados = 0;
+
+      await db.withTransactionAsync(async () => {
+        const existentesRows = await db.getAllAsync<{ id: string }>(
+          'SELECT id FROM familias'
+        );
+        const idsExistentes = new Set(existentesRows.map((row) => row.id));
+
+        for (const item of itens) {
+          const data = validarFamiliaOuFalhar(item);
+          const agora = new Date().toISOString();
+
+          if (idsExistentes.has(item.id)) {
+            await db.runAsync(
+              `UPDATE familias SET
+                nome = ?,
+                endereco = ?,
+                cep = ?,
+                numero = ?,
+                bairro = ?,
+                cidade = ?,
+                telefone = ?,
+                ministerio = ?,
+                situacao_religiosa = ?,
+                situacao_economica = ?,
+                residencia = ?,
+                atualizado_em = ?
+              WHERE id = ?`,
+              data.nome,
+              data.endereco,
+              data.cep,
+              data.numero,
+              data.bairro,
+              data.cidade,
+              data.telefone,
+              data.ministerio,
+              data.situacaoReligiosa,
+              data.situacaoEconomica,
+              data.residencia,
+              agora,
+              item.id
+            );
+            await substituirCargos(item.id, data.cargos);
+            atualizados += 1;
+          } else {
+            const criadoEmValido =
+              item.criadoEm && !Number.isNaN(Date.parse(item.criadoEm))
+                ? item.criadoEm
+                : agora;
+
+            await db.runAsync(
+              `INSERT INTO familias (
+                id, nome, endereco, cep, numero, bairro, cidade, telefone, cargo, ministerio,
+                situacao_religiosa, situacao_economica, residencia, criado_em, atualizado_em
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              item.id,
+              data.nome,
+              data.endereco,
+              data.cep,
+              data.numero,
+              data.bairro,
+              data.cidade,
+              data.telefone,
+              null,
+              data.ministerio,
+              data.situacaoReligiosa,
+              data.situacaoEconomica,
+              data.residencia,
+              criadoEmValido,
+              agora
+            );
+            await substituirCargos(item.id, data.cargos);
+            idsExistentes.add(item.id);
+            criados += 1;
+          }
+        }
+      });
+
+      return { criados, atualizados };
     },
   };
 }
