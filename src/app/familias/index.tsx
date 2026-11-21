@@ -22,8 +22,10 @@ import { SelectField } from '@/features/familias/components/select-field';
 import {
   CIDADES,
   getLocalidadeLabel,
+  SETORES,
   SITUACOES_RELIGIOSAS,
   type Cidade,
+  type Setor,
   type SituacaoReligiosa,
 } from '@/features/familias/constants';
 import type { Familia } from '@/features/familias/types';
@@ -35,6 +37,7 @@ export default function FamiliasScreen() {
   const [familias, setFamilias] = useState<Familia[]>([]);
   const [bairros, setBairros] = useState<string[]>([]);
   const [busca, setBusca] = useState('');
+  const [setor, setSetor] = useState<Setor | null>(null);
   const [cidade, setCidade] = useState<Cidade | null>(null);
   const [bairro, setBairro] = useState<string | null>(null);
   const [situacao, setSituacao] = useState<SituacaoReligiosa | null>(null);
@@ -51,6 +54,7 @@ export default function FamiliasScreen() {
         const [items, neighborhoodOptions] = await Promise.all([
           repository.listar({
             busca,
+            setor,
             cidade,
             bairro,
             situacaoReligiosa: situacao,
@@ -70,7 +74,7 @@ export default function FamiliasScreen() {
         setRefreshing(false);
       }
     },
-    [bairro, busca, cidade, repository, situacao]
+    [bairro, busca, cidade, repository, setor, situacao]
   );
 
   useFocusEffect(
@@ -81,12 +85,13 @@ export default function FamiliasScreen() {
 
   const clearFilters = () => {
     setBusca('');
+    setSetor(null);
     setCidade(null);
     setBairro(null);
     setSituacao(null);
   };
 
-  const hasFilters = Boolean(busca.trim() || cidade || bairro || situacao);
+  const hasFilters = Boolean(busca.trim() || setor || cidade || bairro || situacao);
 
   return (
     <ThemedView style={styles.root}>
@@ -157,6 +162,13 @@ export default function FamiliasScreen() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.filters}>
+                <SelectField<Setor>
+                  variant="chip"
+                  label="Setor"
+                  value={setor}
+                  options={SETORES}
+                  onChange={setSetor}
+                />
                 <SelectField<Cidade>
                   variant="chip"
                   label="Localidade"

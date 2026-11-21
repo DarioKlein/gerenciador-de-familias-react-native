@@ -31,6 +31,7 @@ export function FamiliaHeroCard({
 }) {
   const theme = useTheme();
   const location = [
+    familia.setor,
     familia.bairro,
     familia.cidade ? getLocalidadeLabel(familia.cidade) : null,
   ]
@@ -68,6 +69,14 @@ export function FamiliaHeroCard({
             </ThemedText>
           </View>
         )}
+        {familia.setor ? (
+          <View style={[styles.highlightBadge, { backgroundColor: '#D8F0F7' }]}>
+            <AppIcon name="location" color="#12627A" size={14} />
+            <ThemedText type="smallBold" style={{ color: '#12627A' }}>
+              {familia.setor}
+            </ThemedText>
+          </View>
+        ) : null}
         {familia.ministerio ? (
           <View style={[styles.highlightBadge, { backgroundColor: theme.primarySoft }]}>
             <AppIcon name="religious" color={theme.primary} size={14} />
@@ -128,6 +137,7 @@ export function FamiliaAddressSection({ familia }: { familia: Familia }) {
 
   const address = [familia.endereco, familia.numero].filter(Boolean).join(', ');
   const location = [
+    familia.setor,
     familia.bairro,
     familia.cidade ? getLocalidadeLabel(familia.cidade) : null,
   ]
@@ -154,6 +164,7 @@ export function FamiliaAddressSection({ familia }: { familia: Familia }) {
     <DetailSection title="Endereço" icon="location">
       <DetailField label="Rua e número" value={address || null} prominent />
       <DetailField label="Bairro e localidade" value={location || null} />
+      <DetailField label="Setor" value={familia.setor} highlight={Boolean(familia.setor)} />
       <DetailField label="CEP" value={familia.cep} />
       <DetailField label="Município" value={`${MUNICIPIO_OFICIAL}/${UF_OFICIAL}`} />
 

@@ -31,6 +31,7 @@ import {
   getLocalidadeLabel,
   MINISTERIOS,
   MUNICIPIO_OFICIAL,
+  obterSetorDaFamilia,
   SITUACOES_ECONOMICAS,
   SITUACOES_RELIGIOSAS,
   TIPOS_RESIDENCIA,
@@ -112,6 +113,11 @@ export function FamiliaForm({
   useEffect(() => {
     formRef.current = form;
   }, [form]);
+
+  const setorIdentificado = obterSetorDaFamilia({
+    cidade: form.cidade,
+    bairro: form.bairro,
+  });
 
   const setField = <K extends keyof FamiliaInput>(field: K, value: FamiliaInput[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -503,6 +509,31 @@ export function FamiliaForm({
                 <ThemedText type="small" themeColor="textSecondary">
                   Todas as opções pertencem ao município de {MUNICIPIO_OFICIAL}/SP.
                 </ThemedText>
+                <View
+                  style={[
+                    styles.cepFeedback,
+                    {
+                      backgroundColor: setorIdentificado ? theme.primarySoft : theme.input,
+                    },
+                  ]}>
+                  <AppIcon
+                    name="location"
+                    color={setorIdentificado ? theme.primary : theme.textSecondary}
+                    size={18}
+                  />
+                  <ThemedText
+                    type="small"
+                    style={[
+                      styles.cepFeedbackText,
+                      {
+                        color: setorIdentificado ? theme.primary : theme.textSecondary,
+                      },
+                    ]}>
+                    {setorIdentificado
+                      ? `Setor identificado automaticamente: ${setorIdentificado}`
+                      : 'Informe um bairro cadastrado ou distrito para identificar o setor automaticamente.'}
+                  </ThemedText>
+                </View>
 
                 {form.endereco.trim().length >= 3 &&
                 obterDigitosCep(form.cep ?? '').length < MAX_DIGITOS_CEP ? (

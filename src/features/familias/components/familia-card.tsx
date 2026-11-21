@@ -18,6 +18,7 @@ export function FamiliaCard({ familia, onPress }: FamiliaCardProps) {
   const theme = useTheme();
   const address = [familia.endereco, familia.numero].filter(Boolean).join(', ');
   const location = [
+    familia.setor,
     familia.bairro,
     familia.cidade ? getLocalidadeLabel(familia.cidade) : null,
   ]
