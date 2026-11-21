@@ -75,12 +75,25 @@ function createInitialState(value?: Familia): FamiliaInput {
     bairro: value?.bairro ?? '',
     cidade: value?.cidade ?? null,
     telefone: formatarTelefoneCelular(value?.telefone ?? ''),
+    numeroMoradores:
+      value?.numeroMoradores != null ? String(value.numeroMoradores) : '',
+    numeroCriancas:
+      value?.numeroCriancas != null ? String(value.numeroCriancas) : '',
+    numeroIdosos: value?.numeroIdosos != null ? String(value.numeroIdosos) : '',
+    numeroEnfermos:
+      value?.numeroEnfermos != null ? String(value.numeroEnfermos) : '',
+    numeroBatizados:
+      value?.numeroBatizados != null ? String(value.numeroBatizados) : '',
     cargos: value?.cargos ?? [],
     ministerio: value?.ministerio ?? null,
     situacaoReligiosa: value?.situacaoReligiosa ?? null,
     situacaoEconomica: value?.situacaoEconomica ?? null,
     residencia: value?.residencia ?? null,
   };
+}
+
+function somenteDigitos(value: string) {
+  return value.replace(/\D/g, '').slice(0, 3);
 }
 
 export function FamiliaForm({
@@ -557,6 +570,66 @@ export function FamiliaForm({
                 ) : null}
               </FormSection>
 
+              <FormSection title="Composição da família" icon="people">
+                <ThemedText type="small" themeColor="textSecondary">
+                  Informe as quantidades referentes à casa ou deixe em branco/0 quando não
+                  houver.
+                </ThemedText>
+                <FormTextField
+                  label="Nº de moradores"
+                  value={String(form.numeroMoradores ?? '')}
+                  error={errors.numeroMoradores}
+                  placeholder="0"
+                  keyboardType="number-pad"
+                  maxLength={3}
+                  onChangeText={(value) =>
+                    setField('numeroMoradores', somenteDigitos(value))
+                  }
+                />
+                <FormTextField
+                  label="Nº de crianças"
+                  value={String(form.numeroCriancas ?? '')}
+                  error={errors.numeroCriancas}
+                  placeholder="0"
+                  keyboardType="number-pad"
+                  maxLength={3}
+                  onChangeText={(value) =>
+                    setField('numeroCriancas', somenteDigitos(value))
+                  }
+                />
+                <FormTextField
+                  label="Nº de idosos"
+                  value={String(form.numeroIdosos ?? '')}
+                  error={errors.numeroIdosos}
+                  placeholder="0"
+                  keyboardType="number-pad"
+                  maxLength={3}
+                  onChangeText={(value) => setField('numeroIdosos', somenteDigitos(value))}
+                />
+                <FormTextField
+                  label="Nº de enfermos"
+                  value={String(form.numeroEnfermos ?? '')}
+                  error={errors.numeroEnfermos}
+                  placeholder="0"
+                  keyboardType="number-pad"
+                  maxLength={3}
+                  onChangeText={(value) =>
+                    setField('numeroEnfermos', somenteDigitos(value))
+                  }
+                />
+                <FormTextField
+                  label="Nº de batizados"
+                  value={String(form.numeroBatizados ?? '')}
+                  error={errors.numeroBatizados}
+                  placeholder="0"
+                  keyboardType="number-pad"
+                  maxLength={3}
+                  onChangeText={(value) =>
+                    setField('numeroBatizados', somenteDigitos(value))
+                  }
+                />
+              </FormSection>
+
               <FormSection title="Função" icon="work">
                 <View style={styles.choiceGroup}>
                   <ThemedText type="smallBold">Cargos</ThemedText>
@@ -588,7 +661,7 @@ export function FamiliaForm({
                 <View style={styles.choiceGroup}>
                   <ThemedText type="smallBold">Situação religiosa</ThemedText>
                   <ThemedText type="small" themeColor="textSecondary">
-                    Escolha apenas uma opção ou deixe sem informação.
+                    Situação religiosa do representante (Congrega ou Parado).
                   </ThemedText>
                   <ChoiceChips<SituacaoReligiosa>
                     values={SITUACOES_RELIGIOSAS}

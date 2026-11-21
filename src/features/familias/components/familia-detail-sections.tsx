@@ -85,6 +85,16 @@ export function FamiliaHeroCard({
             </ThemedText>
           </View>
         ) : null}
+        {familia.numeroEnfermos && familia.numeroEnfermos > 0 ? (
+          <View style={[styles.highlightBadge, { backgroundColor: theme.dangerSoft }]}>
+            <AppIcon name="warning" color={theme.danger} size={14} />
+            <ThemedText type="smallBold" style={{ color: theme.danger }}>
+              {`${familia.numeroEnfermos} ${
+                familia.numeroEnfermos === 1 ? 'enfermo' : 'enfermos'
+              }`}
+            </ThemedText>
+          </View>
+        ) : null}
       </View>
 
       <View style={[styles.divider, { backgroundColor: theme.border }]} />
@@ -301,6 +311,54 @@ export function FamiliaContactSection({ familia }: { familia: Familia }) {
   );
 }
 
+function formatarContagemComposicao(
+  valor: number | null,
+  singular: string,
+  plural: string
+): string | null {
+  if (!valor || valor <= 0) return null;
+  return `${valor} ${valor === 1 ? singular : plural}`;
+}
+
+export function FamiliaCompositionSection({ familia }: { familia: Familia }) {
+  return (
+    <DetailSection title="Composição da família" icon="people">
+      <DetailField
+        label="Nº de moradores"
+        value={formatarContagemComposicao(familia.numeroMoradores, 'morador', 'moradores')}
+        emptyText="Não há moradores"
+        prominent
+      />
+      <DetailField
+        label="Nº de crianças"
+        value={formatarContagemComposicao(familia.numeroCriancas, 'criança', 'crianças')}
+        emptyText="Não há crianças"
+        prominent
+      />
+      <DetailField
+        label="Nº de idosos"
+        value={formatarContagemComposicao(familia.numeroIdosos, 'idoso', 'idosos')}
+        emptyText="Não há idosos"
+        prominent
+      />
+      <DetailField
+        label="Nº de enfermos"
+        value={formatarContagemComposicao(familia.numeroEnfermos, 'enfermo', 'enfermos')}
+        emptyText="Não há enfermos"
+        icon={familia.numeroEnfermos && familia.numeroEnfermos > 0 ? 'warning' : undefined}
+        prominent
+        danger={Boolean(familia.numeroEnfermos && familia.numeroEnfermos > 0)}
+      />
+      <DetailField
+        label="Nº de batizados"
+        value={formatarContagemComposicao(familia.numeroBatizados, 'batizado', 'batizados')}
+        emptyText="Não há batizados"
+        prominent
+      />
+    </DetailSection>
+  );
+}
+
 export function FamiliaRoleSection({ familia }: { familia: Familia }) {
   const theme = useTheme();
 
@@ -404,29 +462,47 @@ function DetailSection({
 function DetailField({
   label,
   value,
+  emptyText = 'Não informado',
   icon,
   prominent = false,
   highlight = false,
+  danger = false,
 }: {
   label: string;
   value: string | null;
+  emptyText?: string;
   icon?: AppIconName;
   prominent?: boolean;
   highlight?: boolean;
+  danger?: boolean;
 }) {
   const theme = useTheme();
   const filled = Boolean(value);
+  const useDanger = danger && filled;
 
   return (
-    <View style={[styles.detailField, { backgroundColor: theme.input }]}>
-      <ThemedText type="small" themeColor="textSecondary">
+    <View
+      style={[
+        styles.detailField,
+        { backgroundColor: useDanger ? theme.dangerSoft : theme.input },
+      ]}>
+      <ThemedText
+        type="small"
+        themeColor="textSecondary"
+        style={useDanger ? { color: theme.danger } : undefined}>
         {label}
       </ThemedText>
       <View style={styles.detailValueRow}>
         {icon && filled ? (
           <AppIcon
             name={icon}
-            color={highlight ? theme.primary : theme.textSecondary}
+            color={
+              useDanger
+                ? theme.danger
+                : highlight
+                  ? theme.primary
+                  : theme.textSecondary
+            }
             size={18}
           />
         ) : null}
@@ -437,8 +513,9 @@ function DetailField({
             styles.detailValueText,
             prominent && filled ? styles.prominentValue : undefined,
             highlight && filled ? { color: theme.primary } : undefined,
+            useDanger ? { color: theme.danger } : undefined,
           ]}>
-          {value || 'Não informado'}
+          {value || emptyText}
         </ThemedText>
       </View>
     </View>

@@ -10,6 +10,7 @@ import { useFamiliasRepository } from '@/database/use-familias-repository';
 import { DeleteFamilyModal } from '@/features/familias/components/delete-family-modal';
 import {
   FamiliaAddressSection,
+  FamiliaCompositionSection,
   FamiliaContactSection,
   FamiliaHeroCard,
   FamiliaRoleSection,
@@ -128,6 +129,7 @@ export default function FamiliaDetailsScreen() {
 
       <FamiliaAddressSection familia={familia} />
       <FamiliaContactSection familia={familia} />
+      <FamiliaCompositionSection familia={familia} />
       <FamiliaRoleSection familia={familia} />
       <FamiliaStatusSection familia={familia} />
 

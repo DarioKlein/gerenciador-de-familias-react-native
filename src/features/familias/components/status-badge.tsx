@@ -6,8 +6,6 @@ import type { SituacaoReligiosa } from '@/features/familias/constants';
 const STATUS_COLORS: Record<SituacaoReligiosa, { background: string; text: string }> = {
   Congrega: { background: '#C8F3DF', text: '#126344' },
   Parado: { background: '#E7E9ED', text: '#444B55' },
-  Enfermo: { background: '#FFE1DC', text: '#A52A22' },
-  Testemunhado: { background: '#D8F0F7', text: '#12627A' },
 };
 
 export function StatusBadge({ value }: { value: SituacaoReligiosa }) {
