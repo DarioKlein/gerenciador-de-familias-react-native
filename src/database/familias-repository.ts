@@ -34,6 +34,11 @@ type FamiliaRow = {
   bairro: string | null;
   cidade: Cidade | null;
   telefone: string | null;
+  numero_moradores: number | null;
+  numero_criancas: number | null;
+  numero_idosos: number | null;
+  numero_enfermos: number | null;
+  numero_batizados: number | null;
   ministerio: Ministerio | null;
   situacao_religiosa: SituacaoReligiosa | null;
   situacao_economica: SituacaoEconomica | null;
@@ -57,6 +62,11 @@ const SELECT_FAMILIAS = `
     bairro,
     cidade,
     telefone,
+    numero_moradores,
+    numero_criancas,
+    numero_idosos,
+    numero_enfermos,
+    numero_batizados,
     ministerio,
     situacao_religiosa,
     situacao_economica,
@@ -77,6 +87,11 @@ function mapFamilia(row: FamiliaRow, cargos: Cargo[]): Familia {
     cidade: row.cidade,
     setor: obterSetorDaFamilia({ cidade: row.cidade, bairro: row.bairro }),
     telefone: row.telefone,
+    numeroMoradores: row.numero_moradores,
+    numeroCriancas: row.numero_criancas,
+    numeroIdosos: row.numero_idosos,
+    numeroEnfermos: row.numero_enfermos,
+    numeroBatizados: row.numero_batizados,
     cargos,
     ministerio: row.ministerio,
     situacaoReligiosa: row.situacao_religiosa,
@@ -230,9 +245,11 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
       await db.withTransactionAsync(async () => {
         await db.runAsync(
           `INSERT INTO familias (
-            id, nome, endereco, cep, numero, bairro, cidade, telefone, cargo, ministerio,
-            situacao_religiosa, situacao_economica, residencia, criado_em, atualizado_em
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            id, nome, endereco, cep, numero, bairro, cidade, telefone,
+            numero_moradores, numero_criancas, numero_idosos, numero_enfermos, numero_batizados,
+            cargo, ministerio, situacao_religiosa, situacao_economica, residencia,
+            criado_em, atualizado_em
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           familia.id,
           familia.nome,
           familia.endereco,
@@ -241,6 +258,11 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
           familia.bairro,
           familia.cidade,
           familia.telefone,
+          familia.numeroMoradores,
+          familia.numeroCriancas,
+          familia.numeroIdosos,
+          familia.numeroEnfermos,
+          familia.numeroBatizados,
           null,
           familia.ministerio,
           familia.situacaoReligiosa,
@@ -272,6 +294,11 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
             bairro = ?,
             cidade = ?,
             telefone = ?,
+            numero_moradores = ?,
+            numero_criancas = ?,
+            numero_idosos = ?,
+            numero_enfermos = ?,
+            numero_batizados = ?,
             ministerio = ?,
             situacao_religiosa = ?,
             situacao_economica = ?,
@@ -285,6 +312,11 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
           data.bairro,
           data.cidade,
           data.telefone,
+          data.numeroMoradores,
+          data.numeroCriancas,
+          data.numeroIdosos,
+          data.numeroEnfermos,
+          data.numeroBatizados,
           data.ministerio,
           data.situacaoReligiosa,
           data.situacaoEconomica,
@@ -332,6 +364,11 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
                 bairro = ?,
                 cidade = ?,
                 telefone = ?,
+                numero_moradores = ?,
+                numero_criancas = ?,
+                numero_idosos = ?,
+                numero_enfermos = ?,
+                numero_batizados = ?,
                 ministerio = ?,
                 situacao_religiosa = ?,
                 situacao_economica = ?,
@@ -345,6 +382,11 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
               data.bairro,
               data.cidade,
               data.telefone,
+              data.numeroMoradores,
+              data.numeroCriancas,
+              data.numeroIdosos,
+              data.numeroEnfermos,
+              data.numeroBatizados,
               data.ministerio,
               data.situacaoReligiosa,
               data.situacaoEconomica,
@@ -362,9 +404,11 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
 
             await db.runAsync(
               `INSERT INTO familias (
-                id, nome, endereco, cep, numero, bairro, cidade, telefone, cargo, ministerio,
-                situacao_religiosa, situacao_economica, residencia, criado_em, atualizado_em
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                id, nome, endereco, cep, numero, bairro, cidade, telefone,
+                numero_moradores, numero_criancas, numero_idosos, numero_enfermos, numero_batizados,
+                cargo, ministerio, situacao_religiosa, situacao_economica, residencia,
+                criado_em, atualizado_em
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
               item.id,
               data.nome,
               data.endereco,
@@ -373,6 +417,11 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
               data.bairro,
               data.cidade,
               data.telefone,
+              data.numeroMoradores,
+              data.numeroCriancas,
+              data.numeroIdosos,
+              data.numeroEnfermos,
+              data.numeroBatizados,
               null,
               data.ministerio,
               data.situacaoReligiosa,

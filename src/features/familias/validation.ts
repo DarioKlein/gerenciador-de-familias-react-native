@@ -53,6 +53,39 @@ function pertenceALista<const T extends readonly string[]>(
   return value === null || (values as readonly string[]).includes(value);
 }
 
+const ERRO_CONTAGEM_INVALIDA = 'Informe um número inteiro válido (0 ou maior).';
+
+function parsearContagemOpcional(
+  value: number | string | null | undefined
+): { ok: true; value: number | null } | { ok: false } {
+  if (value === null || value === undefined) {
+    return { ok: true, value: null };
+  }
+
+  if (typeof value === 'number') {
+    if (Number.isInteger(value) && value >= 0 && value <= 999) {
+      return { ok: true, value };
+    }
+    return { ok: false };
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return { ok: true, value: null };
+  }
+
+  if (!/^\d+$/.test(trimmed)) {
+    return { ok: false };
+  }
+
+  const parsed = Number(trimmed);
+  if (Number.isInteger(parsed) && parsed >= 0 && parsed <= 999) {
+    return { ok: true, value: parsed };
+  }
+
+  return { ok: false };
+}
+
 export function validarFamilia(input: FamiliaInput): FamiliaValidationResult {
   const errors: FamiliaValidationErrors = {};
   const nome = normalizarTexto(input.nome);
@@ -70,6 +103,11 @@ export function validarFamilia(input: FamiliaInput): FamiliaValidationResult {
   const telefone = telefoneInformado
     ? formatarTelefoneCelular(telefoneInformado)
     : null;
+  const moradoresParsed = parsearContagemOpcional(input.numeroMoradores);
+  const criancasParsed = parsearContagemOpcional(input.numeroCriancas);
+  const idososParsed = parsearContagemOpcional(input.numeroIdosos);
+  const enfermosParsed = parsearContagemOpcional(input.numeroEnfermos);
+  const batizadosParsed = parsearContagemOpcional(input.numeroBatizados);
   const cargos = Array.from(
     new Set((input.cargos ?? []).map((cargo) => normalizarTexto(cargo)).filter(Boolean))
   );
@@ -96,6 +134,12 @@ export function validarFamilia(input: FamiliaInput): FamiliaValidationResult {
     errors.telefone = 'O telefone deve ter no máximo 11 dígitos.';
   }
 
+  if (!moradoresParsed.ok) errors.numeroMoradores = ERRO_CONTAGEM_INVALIDA;
+  if (!criancasParsed.ok) errors.numeroCriancas = ERRO_CONTAGEM_INVALIDA;
+  if (!idososParsed.ok) errors.numeroIdosos = ERRO_CONTAGEM_INVALIDA;
+  if (!enfermosParsed.ok) errors.numeroEnfermos = ERRO_CONTAGEM_INVALIDA;
+  if (!batizadosParsed.ok) errors.numeroBatizados = ERRO_CONTAGEM_INVALIDA;
+
   if (!pertenceALista(cidade, CIDADES)) {
     errors.cidade = 'Selecione uma cidade válida.';
   }
@@ -120,7 +164,14 @@ export function validarFamilia(input: FamiliaInput): FamiliaValidationResult {
     errors.residencia = 'Selecione um tipo de residência válido.';
   }
 
-  if (Object.keys(errors).length > 0) {
+  if (
+    Object.keys(errors).length > 0 ||
+    !moradoresParsed.ok ||
+    !criancasParsed.ok ||
+    !idososParsed.ok ||
+    !enfermosParsed.ok ||
+    !batizadosParsed.ok
+  ) {
     return { success: false, errors };
   }
 
@@ -134,6 +185,11 @@ export function validarFamilia(input: FamiliaInput): FamiliaValidationResult {
       bairro,
       cidade: cidade as Cidade | null,
       telefone,
+      numeroMoradores: moradoresParsed.value,
+      numeroCriancas: criancasParsed.value,
+      numeroIdosos: idososParsed.value,
+      numeroEnfermos: enfermosParsed.value,
+      numeroBatizados: batizadosParsed.value,
       cargos: cargos as Cargo[],
       ministerio: ministerio as Ministerio | null,
       situacaoReligiosa: situacaoReligiosa as SituacaoReligiosa | null,

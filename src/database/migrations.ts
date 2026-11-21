@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-export const DATABASE_VERSION = 3;
+export const DATABASE_VERSION = 4;
 
 const CREATE_SCHEMA_V1 = `
   CREATE TABLE IF NOT EXISTS familias (
@@ -39,9 +39,7 @@ const CREATE_SCHEMA_V1 = `
     situacao_religiosa TEXT CHECK (
       situacao_religiosa IS NULL OR situacao_religiosa IN (
         'Congrega',
-        'Parado',
-        'Enfermo',
-        'Testemunhado'
+        'Parado'
       )
     ),
     situacao_economica TEXT CHECK (
@@ -108,6 +106,19 @@ const MIGRATE_TO_V3 = `
     WHERE cargo IS NOT NULL;
 `;
 
+const MIGRATE_TO_V4 = `
+  ALTER TABLE familias ADD COLUMN numero_moradores INTEGER CHECK (numero_moradores IS NULL OR numero_moradores >= 0);
+  ALTER TABLE familias ADD COLUMN numero_criancas INTEGER CHECK (numero_criancas IS NULL OR numero_criancas >= 0);
+  ALTER TABLE familias ADD COLUMN numero_idosos INTEGER CHECK (numero_idosos IS NULL OR numero_idosos >= 0);
+  ALTER TABLE familias ADD COLUMN numero_enfermos INTEGER CHECK (numero_enfermos IS NULL OR numero_enfermos >= 0);
+  ALTER TABLE familias ADD COLUMN numero_batizados INTEGER CHECK (numero_batizados IS NULL OR numero_batizados >= 0);
+
+  UPDATE familias
+    SET situacao_religiosa = NULL
+    WHERE situacao_religiosa IS NOT NULL
+      AND situacao_religiosa NOT IN ('Congrega', 'Parado');
+`;
+
 export async function migrateDatabase(db: SQLiteDatabase) {
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
 
@@ -140,6 +151,14 @@ export async function migrateDatabase(db: SQLiteDatabase) {
     await db.withTransactionAsync(async () => {
       await db.execAsync(MIGRATE_TO_V3);
       await db.execAsync('PRAGMA user_version = 3;');
+    });
+    currentVersion = 3;
+  }
+
+  if (currentVersion === 3) {
+    await db.withTransactionAsync(async () => {
+      await db.execAsync(MIGRATE_TO_V4);
+      await db.execAsync('PRAGMA user_version = 4;');
     });
   }
 }

@@ -18,6 +18,11 @@ export type FamiliaDados = {
   bairro: string | null;
   cidade: Cidade | null;
   telefone: string | null;
+  numeroMoradores: number | null;
+  numeroCriancas: number | null;
+  numeroIdosos: number | null;
+  numeroEnfermos: number | null;
+  numeroBatizados: number | null;
   cargos: Cargo[];
   ministerio: Ministerio | null;
   situacaoReligiosa: SituacaoReligiosa | null;
@@ -41,6 +46,11 @@ export type FamiliaInput = {
   bairro?: string | null;
   cidade?: string | null;
   telefone?: string | null;
+  numeroMoradores?: number | string | null;
+  numeroCriancas?: number | string | null;
+  numeroIdosos?: number | string | null;
+  numeroEnfermos?: number | string | null;
+  numeroBatizados?: number | string | null;
   cargos?: string[];
   ministerio?: string | null;
   situacaoReligiosa?: string | null;

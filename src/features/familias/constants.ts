@@ -32,12 +32,7 @@ export const MINISTERIOS = [
   'Encarregado de orquestra',
 ] as const;
 
-export const SITUACOES_RELIGIOSAS = [
-  'Congrega',
-  'Parado',
-  'Enfermo',
-  'Testemunhado',
-] as const;
+export const SITUACOES_RELIGIOSAS = ['Congrega', 'Parado'] as const;
 
 export const SITUACOES_ECONOMICAS = [
   'Aposentado',
