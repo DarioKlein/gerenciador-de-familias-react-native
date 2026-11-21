@@ -48,36 +48,67 @@ export function SelectField<T extends string>({
   return (
     <View style={chip ? undefined : styles.wrapper}>
       {!chip ? <ThemedText type="smallBold">{label}</ThemedText> : null}
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`${label}: ${value ? getLabel(value) : placeholder}`}
-        onPress={() => setOpen(true)}
-        style={({ pressed }) => [
-          chip ? styles.filterChip : styles.field,
-          {
-            backgroundColor: value ? theme.primarySoft : theme.input,
-            borderColor: error ? theme.danger : value ? theme.primary : theme.border,
-            opacity: pressed ? 0.78 : 1,
-          },
-        ]}>
-        <ThemedText
-          type={chip ? 'smallBold' : 'default'}
-          numberOfLines={1}
-          style={styles.fieldText}>
-          {chip
-            ? value
-              ? `${label}: ${getLabel(value)}`
-              : label
-            : value
-              ? getLabel(value)
-              : placeholder}
-        </ThemedText>
-        <AppIcon
-          name={value && chip ? 'close' : 'chevronDown'}
-          color={theme.textSecondary}
-          size={18}
-        />
-      </Pressable>
+      {chip && value !== null && allowClear ? (
+        <View
+          style={[
+            styles.filterChipActive,
+            {
+              backgroundColor: theme.primarySoft,
+              borderColor: theme.primary,
+            },
+          ]}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`${label}: ${getLabel(value)}. Toque para alterar`}
+            onPress={() => setOpen(true)}
+            style={({ pressed }) => [
+              styles.filterChipTrigger,
+              { opacity: pressed ? 0.78 : 1 },
+            ]}>
+            <ThemedText type="smallBold" numberOfLines={1} style={styles.fieldText}>
+              {`${label}: ${getLabel(value)}`}
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Limpar filtro ${label}`}
+            hitSlop={8}
+            onPress={() => onChange(null)}
+            style={({ pressed }) => [
+              styles.filterChipClear,
+              { opacity: pressed ? 0.65 : 1 },
+            ]}>
+            <AppIcon name="close" color={theme.primary} size={16} />
+          </Pressable>
+        </View>
+      ) : (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${label}: ${value ? getLabel(value) : placeholder}`}
+          onPress={() => setOpen(true)}
+          style={({ pressed }) => [
+            chip ? styles.filterChip : styles.field,
+            {
+              backgroundColor: value ? theme.primarySoft : theme.input,
+              borderColor: error ? theme.danger : value ? theme.primary : theme.border,
+              opacity: pressed ? 0.78 : 1,
+            },
+          ]}>
+          <ThemedText
+            type={chip ? 'smallBold' : 'default'}
+            numberOfLines={1}
+            style={styles.fieldText}>
+            {chip
+              ? value
+                ? `${label}: ${getLabel(value)}`
+                : label
+              : value
+                ? getLabel(value)
+                : placeholder}
+          </ThemedText>
+          <AppIcon name="chevronDown" color={theme.textSecondary} size={18} />
+        </Pressable>
+      )}
       {error && !chip ? (
         <ThemedText type="small" style={{ color: theme.danger }}>
           {error}
@@ -191,6 +222,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 999,
     paddingHorizontal: Spacing.three,
+  },
+  filterChipActive: {
+    minHeight: 44,
+    maxWidth: 256,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingLeft: Spacing.three,
+    paddingRight: Spacing.one,
+  },
+  filterChipTrigger: {
+    minHeight: 42,
+    justifyContent: 'center',
+    paddingRight: Spacing.one,
+    flexShrink: 1,
+  },
+  filterChipClear: {
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 17,
   },
   fieldText: {
     flexShrink: 1,
