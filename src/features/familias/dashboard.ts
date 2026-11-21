@@ -26,6 +26,11 @@ export type DashboardResumo = {
   totalBairros: number;
   totalLocalidades: number;
   totalSetores: number;
+  totalMoradores: number;
+  totalCriancas: number;
+  totalIdosos: number;
+  totalEnfermos: number;
+  totalBatizados: number;
   cadastrosIncompletos: number;
   ultimaAtualizacao: string | null;
   porSetor: DashboardItemContagem<Setor | 'Não informado'>[];
@@ -145,6 +150,11 @@ export function calcularResumoDashboard(familias: readonly Familia[]): Dashboard
   let semSituacaoReligiosa = 0;
   let semSituacaoEconomica = 0;
   let semResidencia = 0;
+  let totalMoradores = 0;
+  let totalCriancas = 0;
+  let totalIdosos = 0;
+  let totalEnfermos = 0;
+  let totalBatizados = 0;
   let cadastrosIncompletos = 0;
   let ultimaAtualizacao: string | null = null;
   let maiorTimestamp = -Infinity;
@@ -153,6 +163,12 @@ export function calcularResumoDashboard(familias: readonly Familia[]): Dashboard
     if (possuiCadastroIncompleto(familia)) {
       cadastrosIncompletos += 1;
     }
+
+    totalMoradores += familia.numeroMoradores ?? 0;
+    totalCriancas += familia.numeroCriancas ?? 0;
+    totalIdosos += familia.numeroIdosos ?? 0;
+    totalEnfermos += familia.numeroEnfermos ?? 0;
+    totalBatizados += familia.numeroBatizados ?? 0;
 
     const timestamp = Date.parse(familia.atualizadoEm);
     if (!Number.isNaN(timestamp) && timestamp >= maiorTimestamp) {
@@ -274,6 +290,11 @@ export function calcularResumoDashboard(familias: readonly Familia[]): Dashboard
     totalBairros: bairrosContagem.size,
     totalLocalidades,
     totalSetores,
+    totalMoradores,
+    totalCriancas,
+    totalIdosos,
+    totalEnfermos,
+    totalBatizados,
     cadastrosIncompletos,
     ultimaAtualizacao,
     porSetor,

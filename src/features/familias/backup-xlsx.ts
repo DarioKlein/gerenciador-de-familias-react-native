@@ -28,6 +28,11 @@ export const COLUNAS_FAMILIAS = [
   'setor',
   'cep',
   'telefone',
+  'numero_moradores',
+  'numero_criancas',
+  'numero_idosos',
+  'numero_enfermos',
+  'numero_batizados',
   'cargos',
   'ministerio',
   'situacao_religiosa',
@@ -80,6 +85,26 @@ const HEADER_ALIASES: Record<string, ColunaFamilia> = {
   cep: 'cep',
   telefone: 'telefone',
   celular: 'telefone',
+  numero_moradores: 'numero_moradores',
+  n_de_moradores: 'numero_moradores',
+  n_moradores: 'numero_moradores',
+  moradores: 'numero_moradores',
+  numero_criancas: 'numero_criancas',
+  n_de_criancas: 'numero_criancas',
+  n_criancas: 'numero_criancas',
+  criancas: 'numero_criancas',
+  numero_idosos: 'numero_idosos',
+  n_de_idosos: 'numero_idosos',
+  n_idosos: 'numero_idosos',
+  idosos: 'numero_idosos',
+  numero_enfermos: 'numero_enfermos',
+  n_de_enfermos: 'numero_enfermos',
+  n_enfermos: 'numero_enfermos',
+  enfermos: 'numero_enfermos',
+  numero_batizados: 'numero_batizados',
+  n_de_batizados: 'numero_batizados',
+  n_batizados: 'numero_batizados',
+  batizados: 'numero_batizados',
   cargo: 'cargos',
   cargos: 'cargos',
   ministerio: 'ministerio',
@@ -172,6 +197,11 @@ function criarLinhasLeiame() {
     ['setor', 'Não', 'Identificado automaticamente pelo bairro ou distrito (Setor 1 a 7 ou Patrimônios).'],
     ['cep', 'Não', 'CEP de 8 dígitos (ex.: 19880-000).'],
     ['telefone', 'Não', 'Telefone com DDD (até 11 dígitos).'],
+    ['numero_moradores', 'Não', 'Quantidade de moradores na residência (número inteiro >= 0).'],
+    ['numero_criancas', 'Não', 'Quantidade de crianças (número inteiro >= 0).'],
+    ['numero_idosos', 'Não', 'Quantidade de idosos (número inteiro >= 0).'],
+    ['numero_enfermos', 'Não', 'Quantidade de enfermos (número inteiro >= 0).'],
+    ['numero_batizados', 'Não', 'Quantidade de batizados (número inteiro >= 0).'],
     ['cargos', 'Não', `Um ou mais valores separados por vírgula: ${CARGOS.join(' | ')}`],
     ['ministerio', 'Não', `Até um valor: ${MINISTERIOS.join(' | ')}`],
     ['situacao_religiosa', 'Não', `Escolha única: ${SITUACOES_RELIGIOSAS.join(' | ')}`],
@@ -193,6 +223,16 @@ export function gerarBytesPlanilhaBackup(familias: readonly Familia[]): Uint8Arr
     setor: familia.setor ?? '',
     cep: familia.cep ?? '',
     telefone: familia.telefone ?? '',
+    numero_moradores:
+      familia.numeroMoradores != null ? String(familia.numeroMoradores) : '',
+    numero_criancas:
+      familia.numeroCriancas != null ? String(familia.numeroCriancas) : '',
+    numero_idosos:
+      familia.numeroIdosos != null ? String(familia.numeroIdosos) : '',
+    numero_enfermos:
+      familia.numeroEnfermos != null ? String(familia.numeroEnfermos) : '',
+    numero_batizados:
+      familia.numeroBatizados != null ? String(familia.numeroBatizados) : '',
     cargos: familia.cargos.join(', '),
     ministerio: familia.ministerio ?? '',
     situacao_religiosa: familia.situacaoReligiosa ?? '',
@@ -215,6 +255,11 @@ export function gerarBytesPlanilhaBackup(familias: readonly Familia[]): Uint8Arr
     { wch: 15 }, // setor
     { wch: 12 }, // cep
     { wch: 17 }, // telefone
+    { wch: 16 }, // numero_moradores
+    { wch: 16 }, // numero_criancas
+    { wch: 14 }, // numero_idosos
+    { wch: 15 }, // numero_enfermos
+    { wch: 16 }, // numero_batizados
     { wch: 32 }, // cargos
     { wch: 24 }, // ministerio
     { wch: 18 }, // situacao_religiosa
@@ -343,6 +388,11 @@ export function analisarPlanilhaBackup(
       cidade: corresponderListaFixa(getVal('cidade'), CIDADES, LOCALIDADE_EXTRAS),
       cep: getVal('cep') || null,
       telefone: getVal('telefone') || null,
+      numeroMoradores: getVal('numero_moradores') || null,
+      numeroCriancas: getVal('numero_criancas') || null,
+      numeroIdosos: getVal('numero_idosos') || null,
+      numeroEnfermos: getVal('numero_enfermos') || null,
+      numeroBatizados: getVal('numero_batizados') || null,
       cargos: parsearCargos(getVal('cargos')),
       ministerio: corresponderListaFixa(getVal('ministerio'), MINISTERIOS),
       situacaoReligiosa: corresponderListaFixa(

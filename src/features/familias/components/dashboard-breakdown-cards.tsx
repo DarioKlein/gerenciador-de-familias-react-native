@@ -17,8 +17,6 @@ const RELIGIOUS_COLORS: Record<
 > = {
   Congrega: { background: '#C8F3DF', accent: '#126344' },
   Parado: { background: '#E7E9ED', accent: '#444B55' },
-  Enfermo: { background: '#FFE1DC', accent: '#A52A22' },
-  Testemunhado: { background: '#D8F0F7', accent: '#12627A' },
   'Não informado': { background: '#F1F3F7', accent: '#627069' },
 };
 
@@ -196,6 +194,69 @@ export function DashboardBreakdownCards({ resumo }: { resumo: DashboardResumo })
               </View>
             );
           })}
+        </View>
+      </DashboardSection>
+
+      <DashboardSection
+        title="Composição das famílias"
+        icon="people"
+        trailing={
+          <ThemedText type="small" themeColor="textSecondary">
+            Totais
+          </ThemedText>
+        }>
+        <View style={styles.economicGrid}>
+          {[
+            { label: 'Moradores', value: resumo.totalMoradores, danger: false },
+            { label: 'Crianças', value: resumo.totalCriancas, danger: false },
+            { label: 'Idosos', value: resumo.totalIdosos, danger: false },
+            {
+              label: 'Enfermos',
+              value: resumo.totalEnfermos,
+              danger: resumo.totalEnfermos > 0,
+            },
+            { label: 'Batizados', value: resumo.totalBatizados, danger: false },
+          ].map((item) => (
+            <View
+              key={item.label}
+              style={[
+                styles.economicTile,
+                {
+                  backgroundColor: item.danger
+                    ? theme.dangerSoft
+                    : item.value === 0
+                      ? theme.input
+                      : theme.primarySoft,
+                  borderColor: item.danger
+                    ? '#F5C2C0'
+                    : item.value === 0
+                      ? theme.border
+                      : 'transparent',
+                },
+              ]}>
+              <ThemedText
+                style={[
+                  styles.economicValue,
+                  {
+                    color: item.danger
+                      ? theme.danger
+                      : item.value === 0
+                        ? theme.textSecondary
+                        : theme.primary,
+                  },
+                ]}>
+                {item.value}
+              </ThemedText>
+              <ThemedText
+                type="smallBold"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+                style={item.danger ? { color: theme.danger } : undefined}>
+                {item.label}
+              </ThemedText>
+            </View>
+          ))}
         </View>
       </DashboardSection>
 
