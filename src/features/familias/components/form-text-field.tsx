@@ -6,7 +6,7 @@ import {
   View,
 } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
+import { MAX_FONT_SIZE_MULTIPLIER, ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -37,6 +37,7 @@ export function FormTextField({
       </ThemedText>
       <TextInput
         {...props}
+        maxFontSizeMultiplier={props.maxFontSizeMultiplier ?? MAX_FONT_SIZE_MULTIPLIER}
         placeholderTextColor={theme.textSecondary}
         selectionColor={theme.primary}
         style={[
