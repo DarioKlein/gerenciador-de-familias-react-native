@@ -41,8 +41,7 @@ const CREATE_SCHEMA_V1 = `
         'Congrega',
         'Parado',
         'Enfermo',
-        'Testemunhado',
-        'Contato'
+        'Testemunhado'
       )
     ),
     situacao_economica TEXT CHECK (

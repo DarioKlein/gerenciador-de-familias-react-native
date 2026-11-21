@@ -37,7 +37,6 @@ export const SITUACOES_RELIGIOSAS = [
   'Parado',
   'Enfermo',
   'Testemunhado',
-  'Contato',
 ] as const;
 
 export const SITUACOES_ECONOMICAS = [

@@ -8,7 +8,6 @@ const STATUS_COLORS: Record<SituacaoReligiosa, { background: string; text: strin
   Parado: { background: '#E7E9ED', text: '#444B55' },
   Enfermo: { background: '#FFE1DC', text: '#A52A22' },
   Testemunhado: { background: '#D8F0F7', text: '#12627A' },
-  Contato: { background: '#E9E1FA', text: '#5F3A91' },
 };
 
 export function StatusBadge({ value }: { value: SituacaoReligiosa }) {

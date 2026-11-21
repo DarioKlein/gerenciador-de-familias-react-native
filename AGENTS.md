@@ -64,7 +64,7 @@ SQLite table `familias`:
 
 - Do not add an `observacao` field.
 - Religious status and economic status are separate concepts and separate fields.
-- Religious status is single-choice and mutually exclusive. Allowed values: `Congrega`, `Parado`, `Enfermo`, `Testemunhado`, `Contato`.
+- Religious status is single-choice and mutually exclusive. Allowed values: `Congrega`, `Parado`, `Enfermo`, `Testemunhado`.
 - Economic status values: `Aposentado`, `Desempregado`, `Registrado`, `Encostado`, `Autônomo`.
 - Locality values stored in the legacy `cidade` column: `Cândido Mota` (municipal seat), `Alexandria`, `Porto Almeida`, `Frutal do Campo`, `Guaripu` (districts).
 - Show this field as `Localidade / distrito`; never imply that the districts are separate municipalities.
@@ -74,7 +74,7 @@ SQLite table `familias`:
 - Ministry values: `Cooperador de jovens`, `Cooperador oficial`, `Diácono`, `Ancião`, `Encarregado de orquestra`.
 - Residence values: `Própria`, `Alugada`.
 - Legacy records without a religious status remain null and are displayed as `Não informado`.
-- Legacy `CONTATO` maps to religious status `Contato`; it is not a phone number. The new `telefone` field remains empty unless a real number is available.
+- Legacy `CONTATO` entries in the old workbook are not phone numbers; the new `telefone` field remains empty unless a real number is available.
 - Use TypeScript literal unions derived from `as const` arrays for fixed lists. Do not rely on unrestricted strings in application/domain code.
 - Enforce fixed values with SQLite `CHECK` constraints as well as TypeScript and form validation.
 - A family/person can have zero, one, or multiple cargos simultaneously. Store them in `familia_cargos`, keyed by `(familia_id, cargo)`.

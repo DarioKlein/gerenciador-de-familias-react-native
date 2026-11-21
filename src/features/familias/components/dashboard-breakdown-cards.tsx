@@ -19,7 +19,6 @@ const RELIGIOUS_COLORS: Record<
   Parado: { background: '#E7E9ED', accent: '#444B55' },
   Enfermo: { background: '#FFE1DC', accent: '#A52A22' },
   Testemunhado: { background: '#D8F0F7', accent: '#12627A' },
-  Contato: { background: '#E9E1FA', accent: '#5F3A91' },
   'Não informado': { background: '#F1F3F7', accent: '#627069' },
 };
 
