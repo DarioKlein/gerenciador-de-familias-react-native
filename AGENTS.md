@@ -54,6 +54,11 @@ SQLite table `familias`:
 | `bairro` | TEXT | no | Suggest existing neighborhoods to reduce spelling variants. |
 | `cidade` | TEXT | no | Legacy column name used for the fixed locality/district selection. |
 | `telefone` | TEXT | no | Keep as text to preserve prefixes, punctuation, and leading zeroes. |
+| `numero_moradores` | INTEGER | no | Optional non-negative integer for total household residents. |
+| `numero_criancas` | INTEGER | no | Optional non-negative integer for children in the household. |
+| `numero_idosos` | INTEGER | no | Optional non-negative integer for elderly residents. |
+| `numero_enfermos` | INTEGER | no | Optional non-negative integer for sick/ill residents. |
+| `numero_batizados` | INTEGER | no | Optional non-negative integer for baptized residents. |
 | `cargo` | TEXT | no | Legacy single-role column retained for migration compatibility; new writes use `familia_cargos`. |
 | `ministerio` | TEXT | no | At most one value from the fixed ministry list. Independent from cargos. |
 | `situacao_religiosa` | TEXT | no | A single value from the religious-status list. It is not multi-select. |
@@ -64,7 +69,7 @@ SQLite table `familias`:
 
 - Do not add an `observacao` field.
 - Religious status and economic status are separate concepts and separate fields.
-- Religious status is single-choice and mutually exclusive. Allowed values: `Congrega`, `Parado`, `Enfermo`, `Testemunhado`.
+- Religious status is single-choice and mutually exclusive. Allowed values: `Congrega`, `Parado`.
 - Economic status values: `Aposentado`, `Desempregado`, `Registrado`, `Encostado`, `Autônomo`.
 - Locality values stored in the legacy `cidade` column: `Cândido Mota` (municipal seat), `Alexandria`, `Porto Almeida`, `Frutal do Campo`, `Guaripu` (districts).
 - Show this field as `Localidade / distrito`; never imply that the districts are separate municipalities.
