@@ -89,6 +89,7 @@ function createInitialState(value?: Familia): FamiliaInput {
     situacaoReligiosa: value?.situacaoReligiosa ?? null,
     situacaoEconomica: value?.situacaoEconomica ?? null,
     residencia: value?.residencia ?? null,
+    ultimaVisita: value?.ultimaVisita ?? null,
   };
 }
 

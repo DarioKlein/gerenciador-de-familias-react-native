@@ -16,20 +16,24 @@ import {
   type ProvedorMapa,
 } from '@/features/familias/mapa';
 import type { Familia } from '@/features/familias/types';
+import { calcularResumoVisita } from '@/features/familias/visita';
 import { useTheme } from '@/hooks/use-theme';
 
 import { StatusBadge } from './status-badge';
 
 export function FamiliaHeroCard({
   familia,
+  onRegisterVisit,
   onEdit,
   onDelete,
 }: {
   familia: Familia;
+  onRegisterVisit: () => void;
   onEdit: () => void;
   onDelete: () => void;
 }) {
   const theme = useTheme();
+  const resumoVisita = calcularResumoVisita(familia.ultimaVisita);
   const location = [
     familia.setor,
     familia.bairro,
@@ -95,59 +99,152 @@ export function FamiliaHeroCard({
             </ThemedText>
           </View>
         ) : null}
+        {resumoVisita.possuiVisita && resumoVisita.alertaAtrasada ? (
+          <View style={[styles.highlightBadge, { backgroundColor: theme.warningSoft }]}>
+            <AppIcon name="warning" color={theme.warning} size={14} />
+            <ThemedText type="smallBold" style={{ color: theme.warning }}>
+              Sem visita há 6+ meses
+            </ThemedText>
+          </View>
+        ) : null}
       </View>
 
       <View style={[styles.divider, { backgroundColor: theme.border }]} />
 
-      <View style={styles.actions}>
+      <View style={styles.heroActionsGroup}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Editar cadastro"
-          onPress={onEdit}
+          accessibilityLabel="Registrar nova visita"
+          onPress={onRegisterVisit}
           style={({ pressed }) => [
-            styles.actionButton,
-            { backgroundColor: theme.primary, opacity: pressed ? 0.78 : 1 },
-          ]}>
-          <View style={styles.buttonContent}>
-            <AppIcon name="edit" color="#FFFFFF" size={20} />
-            <ThemedText
-              type="smallBold"
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              minimumFontScale={0.85}
-              style={styles.primaryButtonText}>
-              Editar
-            </ThemedText>
-          </View>
-        </Pressable>
-
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Excluir família"
-          onPress={onDelete}
-          style={({ pressed }) => [
-            styles.actionButton,
-            styles.deleteActionButton,
+            styles.visitActionButton,
             {
-              backgroundColor: theme.dangerSoft,
-              borderColor: '#F5C2C0',
+              backgroundColor: theme.primarySoft,
+              borderColor: theme.primary,
               opacity: pressed ? 0.78 : 1,
             },
           ]}>
           <View style={styles.buttonContent}>
-            <AppIcon name="trash" color={theme.danger} size={20} />
+            <AppIcon name="calendar" color={theme.primary} size={20} />
             <ThemedText
               type="smallBold"
               numberOfLines={1}
               adjustsFontSizeToFit
               minimumFontScale={0.85}
-              style={{ color: theme.danger }}>
-              Excluir
+              style={{ color: theme.primary }}>
+              Registrar nova visita
             </ThemedText>
           </View>
         </Pressable>
+
+        <View style={styles.actions}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Editar cadastro"
+            onPress={onEdit}
+            style={({ pressed }) => [
+              styles.actionButton,
+              { backgroundColor: theme.primary, opacity: pressed ? 0.78 : 1 },
+            ]}>
+            <View style={styles.buttonContent}>
+              <AppIcon name="edit" color="#FFFFFF" size={20} />
+              <ThemedText
+                type="smallBold"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.85}
+                style={styles.primaryButtonText}>
+                Editar
+              </ThemedText>
+            </View>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Excluir família"
+            onPress={onDelete}
+            style={({ pressed }) => [
+              styles.actionButton,
+              styles.deleteActionButton,
+              {
+                backgroundColor: theme.dangerSoft,
+                borderColor: '#F5C2C0',
+                opacity: pressed ? 0.78 : 1,
+              },
+            ]}>
+            <View style={styles.buttonContent}>
+              <AppIcon name="trash" color={theme.danger} size={20} />
+              <ThemedText
+                type="smallBold"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.85}
+                style={{ color: theme.danger }}>
+                Excluir
+              </ThemedText>
+            </View>
+          </Pressable>
+        </View>
       </View>
     </ThemedView>
+  );
+}
+
+export function FamiliaVisitSection({ familia }: { familia: Familia }) {
+  const theme = useTheme();
+  const resumo = calcularResumoVisita(familia.ultimaVisita);
+
+  return (
+    <DetailSection title="Visitas" icon="calendar">
+      {resumo.possuiVisita ? (
+        <>
+          {resumo.alertaAtrasada ? (
+            <View
+              style={[
+                styles.warningBanner,
+                {
+                  backgroundColor: theme.warningSoft,
+                  borderColor: '#F5B971',
+                },
+              ]}>
+              <AppIcon name="warning" color={theme.warning} size={20} />
+              <View style={styles.warningCopy}>
+                <ThemedText type="smallBold" style={{ color: theme.warning }}>
+                  Família há 6 meses ou mais sem visita
+                </ThemedText>
+                <ThemedText type="small" style={{ color: theme.warning }}>
+                  {`Última visita registrada em ${resumo.dataFormatada} (${resumo.textoTempoSemVisita.toLowerCase()}).`}
+                </ThemedText>
+              </View>
+            </View>
+          ) : null}
+
+          <DetailField
+            label="Última visita realizada"
+            value={resumo.dataFormatada}
+            icon="calendar"
+            prominent
+            highlight={!resumo.alertaAtrasada}
+            warning={resumo.alertaAtrasada}
+          />
+          <DetailField
+            label="Tempo sem visita"
+            value={resumo.textoTempoSemVisita}
+            icon={resumo.alertaAtrasada ? 'warning' : 'check'}
+            prominent
+            highlight={!resumo.alertaAtrasada && resumo.diasSemVisita === 0}
+            warning={resumo.alertaAtrasada}
+          />
+        </>
+      ) : (
+        <DetailField
+          label="Última visita realizada"
+          value={null}
+          emptyText="Nenhuma visita registrada"
+          prominent
+        />
+      )}
+    </DetailSection>
   );
 }
 
@@ -466,6 +563,7 @@ function DetailField({
   icon,
   prominent = false,
   highlight = false,
+  warning = false,
   danger = false,
 }: {
   label: string;
@@ -474,22 +572,36 @@ function DetailField({
   icon?: AppIconName;
   prominent?: boolean;
   highlight?: boolean;
+  warning?: boolean;
   danger?: boolean;
 }) {
   const theme = useTheme();
   const filled = Boolean(value);
   const useDanger = danger && filled;
+  const useWarning = warning && filled && !useDanger;
 
   return (
     <View
       style={[
         styles.detailField,
-        { backgroundColor: useDanger ? theme.dangerSoft : theme.input },
+        {
+          backgroundColor: useDanger
+            ? theme.dangerSoft
+            : useWarning
+              ? theme.warningSoft
+              : theme.input,
+        },
       ]}>
       <ThemedText
         type="small"
         themeColor="textSecondary"
-        style={useDanger ? { color: theme.danger } : undefined}>
+        style={
+          useDanger
+            ? { color: theme.danger }
+            : useWarning
+              ? { color: theme.warning }
+              : undefined
+        }>
         {label}
       </ThemedText>
       <View style={styles.detailValueRow}>
@@ -499,9 +611,11 @@ function DetailField({
             color={
               useDanger
                 ? theme.danger
-                : highlight
-                  ? theme.primary
-                  : theme.textSecondary
+                : useWarning
+                  ? theme.warning
+                  : highlight
+                    ? theme.primary
+                    : theme.textSecondary
             }
             size={18}
           />
@@ -513,6 +627,7 @@ function DetailField({
             styles.detailValueText,
             prominent && filled ? styles.prominentValue : undefined,
             highlight && filled ? { color: theme.primary } : undefined,
+            useWarning ? { color: theme.warning } : undefined,
             useDanger ? { color: theme.danger } : undefined,
           ]}>
           {value || emptyText}
@@ -582,6 +697,19 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
+  },
+  heroActionsGroup: {
+    gap: Spacing.two,
+  },
+  visitActionButton: {
+    width: '100%',
+    minHeight: 52,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderRadius: 18,
+    paddingHorizontal: Spacing.three,
   },
   actions: {
     flexDirection: 'row',
@@ -710,5 +838,18 @@ const styles = StyleSheet.create({
   },
   mapErrorText: {
     flex: 1,
+  },
+  warningBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.two,
+    borderWidth: 1,
+    borderRadius: 18,
+    padding: Spacing.three,
+  },
+  warningCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: Spacing.half,
   },
 });

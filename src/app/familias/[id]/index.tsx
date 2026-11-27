@@ -15,7 +15,9 @@ import {
   FamiliaHeroCard,
   FamiliaRoleSection,
   FamiliaStatusSection,
+  FamiliaVisitSection,
 } from '@/features/familias/components/familia-detail-sections';
+import { RegisterVisitModal } from '@/features/familias/components/register-visit-modal';
 import type { Familia } from '@/features/familias/types';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -25,6 +27,8 @@ export default function FamiliaDetailsScreen() {
   const repository = useFamiliasRepository();
   const [familia, setFamilia] = useState<Familia | null>(null);
   const [loading, setLoading] = useState(true);
+  const [visitOpen, setVisitOpen] = useState(false);
+  const [savingVisit, setSavingVisit] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +61,27 @@ export default function FamiliaDetailsScreen() {
       };
     }, [id, repository])
   );
+
+  const confirmVisit = async (dataIso: string) => {
+    if (!familia) return;
+    try {
+      setSavingVisit(true);
+      setError(null);
+      const updated = await repository.registrarVisita(familia.id, dataIso);
+      if (!updated) throw new Error('O cadastro não foi encontrado para registrar a visita.');
+      setFamilia(updated);
+      setVisitOpen(false);
+    } catch (visitError) {
+      setError(
+        visitError instanceof Error
+          ? visitError.message
+          : 'Não foi possível registrar a visita.'
+      );
+      setVisitOpen(false);
+    } finally {
+      setSavingVisit(false);
+    }
+  };
 
   const confirmDelete = async () => {
     if (!familia) return;
@@ -121,17 +146,29 @@ export default function FamiliaDetailsScreen() {
 
       <FamiliaHeroCard
         familia={familia}
+        onRegisterVisit={() => setVisitOpen(true)}
         onEdit={() =>
           router.push({ pathname: '/familias/[id]/editar', params: { id: familia.id } })
         }
         onDelete={() => setDeleteOpen(true)}
       />
 
+      <FamiliaVisitSection familia={familia} />
       <FamiliaAddressSection familia={familia} />
       <FamiliaContactSection familia={familia} />
       <FamiliaCompositionSection familia={familia} />
       <FamiliaRoleSection familia={familia} />
       <FamiliaStatusSection familia={familia} />
+
+      {visitOpen ? (
+        <RegisterVisitModal
+          familia={familia}
+          visible={visitOpen}
+          saving={savingVisit}
+          onCancel={() => setVisitOpen(false)}
+          onConfirm={confirmVisit}
+        />
+      ) : null}
 
       <DeleteFamilyModal
         familia={familia}
