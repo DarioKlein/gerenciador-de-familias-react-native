@@ -81,17 +81,23 @@ function criarItemContagem<T extends string>(
   };
 }
 
+export function listarCamposFaltantes(familia: Familia): string[] {
+  const faltantes: string[] = [];
+
+  if (!normalizarEspacos(familia.cep)) faltantes.push('CEP');
+  if (!normalizarEspacos(familia.numero)) faltantes.push('Número');
+  if (!normalizarEspacos(familia.bairro)) faltantes.push('Bairro');
+  if (!familia.cidade) faltantes.push('Localidade / distrito');
+  if (!normalizarEspacos(familia.telefone)) faltantes.push('Telefone');
+  if (!familia.situacaoReligiosa) faltantes.push('Situação religiosa');
+  if (!familia.situacaoEconomica) faltantes.push('Situação econômica');
+  if (!familia.residencia) faltantes.push('Tipo de residência');
+
+  return faltantes;
+}
+
 export function possuiCadastroIncompleto(familia: Familia) {
-  return (
-    !normalizarEspacos(familia.cep) ||
-    !normalizarEspacos(familia.numero) ||
-    !normalizarEspacos(familia.bairro) ||
-    !familia.cidade ||
-    !normalizarEspacos(familia.telefone) ||
-    !familia.situacaoReligiosa ||
-    !familia.situacaoEconomica ||
-    !familia.residencia
-  );
+  return listarCamposFaltantes(familia).length > 0;
 }
 
 function contarListaFixa<T extends string>(

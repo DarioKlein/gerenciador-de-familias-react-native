@@ -10,6 +10,7 @@ import {
   MUNICIPIO_OFICIAL,
   UF_OFICIAL,
 } from '@/features/familias/constants';
+import { listarCamposFaltantes } from '@/features/familias/dashboard';
 import {
   abrirEnderecoNoMapa,
   construirConsultaMapa,
@@ -34,6 +35,7 @@ export function FamiliaHeroCard({
 }) {
   const theme = useTheme();
   const resumoVisita = calcularResumoVisita(familia.ultimaVisita);
+  const camposFaltantes = listarCamposFaltantes(familia);
   const location = [
     familia.setor,
     familia.bairro,
@@ -108,6 +110,24 @@ export function FamiliaHeroCard({
           </View>
         ) : null}
       </View>
+
+      {camposFaltantes.length > 0 ? (
+        <View
+          style={[
+            styles.warningBanner,
+            { backgroundColor: theme.dangerSoft, borderColor: '#F5C2C0' },
+          ]}>
+          <AppIcon name="warning" color={theme.danger} size={19} />
+          <View style={styles.warningCopy}>
+            <ThemedText type="smallBold" style={{ color: theme.danger }}>
+              Dados faltantes no cadastro
+            </ThemedText>
+            <ThemedText type="small" style={{ color: theme.danger }}>
+              {`Falta preencher: ${camposFaltantes.join(', ')}.`}
+            </ThemedText>
+          </View>
+        </View>
+      ) : null}
 
       <View style={[styles.divider, { backgroundColor: theme.border }]} />
 
@@ -253,14 +273,6 @@ export function FamiliaAddressSection({ familia }: { familia: Familia }) {
   const [mapError, setMapError] = useState<string | null>(null);
 
   const address = [familia.endereco, familia.numero].filter(Boolean).join(', ');
-  const location = [
-    familia.setor,
-    familia.bairro,
-    familia.cidade ? getLocalidadeLabel(familia.cidade) : null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
-
   const consultaMapa = construirConsultaMapa(familia);
   const enderecoCompleto = consultaMapa !== null;
 
@@ -280,7 +292,14 @@ export function FamiliaAddressSection({ familia }: { familia: Familia }) {
   return (
     <DetailSection title="Endereço" icon="location">
       <DetailField label="Rua e número" value={address || null} prominent />
-      <DetailField label="Bairro e localidade" value={location || null} />
+      <DetailField label="Bairro" value={familia.bairro} />
+      <DetailField
+        label="Localidade / distrito"
+        value={familia.cidade ? getLocalidadeLabel(familia.cidade) : null}
+        emptyText="Não informado"
+        icon={!familia.cidade ? 'warning' : undefined}
+        missingAlert
+      />
       <DetailField label="Setor" value={familia.setor} highlight={Boolean(familia.setor)} />
       <DetailField label="CEP" value={familia.cep} />
       <DetailField label="Município" value={`${MUNICIPIO_OFICIAL}/${UF_OFICIAL}`} />
@@ -565,6 +584,7 @@ function DetailField({
   highlight = false,
   warning = false,
   danger = false,
+  missingAlert = false,
 }: {
   label: string;
   value: string | null;
@@ -574,10 +594,11 @@ function DetailField({
   highlight?: boolean;
   warning?: boolean;
   danger?: boolean;
+  missingAlert?: boolean;
 }) {
   const theme = useTheme();
   const filled = Boolean(value);
-  const useDanger = danger && filled;
+  const useDanger = (danger && filled) || (missingAlert && !filled);
   const useWarning = warning && filled && !useDanger;
 
   return (
@@ -605,7 +626,7 @@ function DetailField({
         {label}
       </ThemedText>
       <View style={styles.detailValueRow}>
-        {icon && filled ? (
+        {icon && (filled || useDanger) ? (
           <AppIcon
             name={icon}
             color={
@@ -621,7 +642,7 @@ function DetailField({
           />
         ) : null}
         <ThemedText
-          type={filled ? 'smallBold' : 'small'}
+          type={filled || useDanger ? 'smallBold' : 'small'}
           themeColor={filled ? 'text' : 'textSecondary'}
           style={[
             styles.detailValueText,
