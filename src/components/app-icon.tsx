@@ -5,6 +5,7 @@ const icons = {
   add: { ios: 'plus', android: 'add', web: 'add' },
   addPerson: { ios: 'person.badge.plus', android: 'person_add', web: 'person_add' },
   badge: { ios: 'person.text.rectangle', android: 'badge', web: 'badge' },
+  calendar: { ios: 'calendar', android: 'calendar_today', web: 'calendar_today' },
   check: { ios: 'checkmark', android: 'check', web: 'check' },
   chevronDown: { ios: 'chevron.down', android: 'expand_more', web: 'expand_more' },
   chevronLeft: { ios: 'chevron.left', android: 'arrow_back', web: 'arrow_back' },

@@ -23,6 +23,11 @@ import {
   MAX_DIGITOS_TELEFONE,
   obterDigitosTelefone,
 } from './telefone';
+import {
+  ehDataFutura,
+  normalizarDataVisitaEntrada,
+  validarDataIso,
+} from './visita';
 
 export type FamiliaValidationErrors = Partial<Record<keyof FamiliaInput, string>>;
 
@@ -115,6 +120,7 @@ export function validarFamilia(input: FamiliaInput): FamiliaValidationResult {
   const situacaoReligiosa = textoOpcional(input.situacaoReligiosa);
   const situacaoEconomica = textoOpcional(input.situacaoEconomica);
   const residencia = textoOpcional(input.residencia);
+  const ultimaVisita = normalizarDataVisitaEntrada(input.ultimaVisita);
 
   if (!nome) {
     errors.nome = 'Informe o nome da família ou do responsável.';
@@ -164,6 +170,14 @@ export function validarFamilia(input: FamiliaInput): FamiliaValidationResult {
     errors.residencia = 'Selecione um tipo de residência válido.';
   }
 
+  if (ultimaVisita !== null) {
+    if (!validarDataIso(ultimaVisita)) {
+      errors.ultimaVisita = 'Informe uma data de visita válida (DD/MM/AAAA).';
+    } else if (ehDataFutura(ultimaVisita)) {
+      errors.ultimaVisita = 'A data da visita não pode ser futura.';
+    }
+  }
+
   if (
     Object.keys(errors).length > 0 ||
     !moradoresParsed.ok ||
@@ -195,6 +209,7 @@ export function validarFamilia(input: FamiliaInput): FamiliaValidationResult {
       situacaoReligiosa: situacaoReligiosa as SituacaoReligiosa | null,
       situacaoEconomica: situacaoEconomica as SituacaoEconomica | null,
       residencia: residencia as TipoResidencia | null,
+      ultimaVisita,
     },
   };
 }

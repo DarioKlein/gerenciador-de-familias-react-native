@@ -81,7 +81,7 @@ function criarItemContagem<T extends string>(
   };
 }
 
-function possuiCadastroIncompleto(familia: Familia) {
+export function possuiCadastroIncompleto(familia: Familia) {
   return (
     !normalizarEspacos(familia.cep) ||
     !normalizarEspacos(familia.numero) ||

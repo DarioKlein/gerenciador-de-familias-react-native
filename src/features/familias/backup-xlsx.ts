@@ -38,6 +38,7 @@ export const COLUNAS_FAMILIAS = [
   'situacao_religiosa',
   'situacao_economica',
   'residencia',
+  'ultima_visita',
   'criado_em',
   'atualizado_em',
 ] as const;
@@ -113,6 +114,9 @@ const HEADER_ALIASES: Record<string, ColunaFamilia> = {
   situacao_economica: 'situacao_economica',
   residencia: 'residencia',
   tipo_de_residencia: 'residencia',
+  ultima_visita: 'ultima_visita',
+  data_ultima_visita: 'ultima_visita',
+  visita: 'ultima_visita',
   criado_em: 'criado_em',
   atualizado_em: 'atualizado_em',
 };
@@ -214,6 +218,7 @@ function criarLinhasLeiame() {
     ['situacao_religiosa', 'Não', `Escolha única: ${SITUACOES_RELIGIOSAS.join(' | ')}`],
     ['situacao_economica', 'Não', `Escolha única: ${SITUACOES_ECONOMICAS.join(' | ')}`],
     ['residencia', 'Não', `Escolha única: ${TIPOS_RESIDENCIA.join(' | ')}`],
+    ['ultima_visita', 'Não', 'Data da última visita realizada (AAAA-MM-DD ou DD/MM/AAAA).'],
     ['criado_em', 'Não', 'Data/hora de criação em formato ISO 8601 (gerada automaticamente).'],
     ['atualizado_em', 'Não', 'Data/hora da última edição em formato ISO 8601 (gerada automaticamente).'],
   ];
@@ -245,6 +250,7 @@ export function gerarBytesPlanilhaBackup(familias: readonly Familia[]): Uint8Arr
     situacao_religiosa: familia.situacaoReligiosa ?? '',
     situacao_economica: familia.situacaoEconomica ?? '',
     residencia: familia.residencia ?? '',
+    ultima_visita: familia.ultimaVisita ?? '',
     criado_em: familia.criadoEm,
     atualizado_em: familia.atualizadoEm,
   }));
@@ -272,6 +278,7 @@ export function gerarBytesPlanilhaBackup(familias: readonly Familia[]): Uint8Arr
     { wch: 18 }, // situacao_religiosa
     { wch: 18 }, // situacao_economica
     { wch: 12 }, // residencia
+    { wch: 14 }, // ultima_visita
     { wch: 26 }, // criado_em
     { wch: 26 }, // atualizado_em
   ];
@@ -411,6 +418,7 @@ export function analisarPlanilhaBackup(
         SITUACOES_ECONOMICAS
       ),
       residencia: corresponderListaFixa(getVal('residencia'), TIPOS_RESIDENCIA),
+      ultimaVisita: getVal('ultima_visita') || null,
     };
 
     const validacao = validarFamilia(input);

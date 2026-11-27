@@ -1,6 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-export const DATABASE_VERSION = 6;
+export const DATABASE_VERSION = 7;
 
 const CREATE_SCHEMA_V1 = `
   CREATE TABLE IF NOT EXISTS familias (
@@ -228,6 +228,10 @@ const MIGRATE_TO_V6 = `
   CREATE INDEX IF NOT EXISTS idx_familias_cep ON familias (cep);
 `;
 
+const MIGRATE_TO_V7 = `
+  ALTER TABLE familias ADD COLUMN ultima_visita TEXT;
+`;
+
 export async function migrateDatabase(db: SQLiteDatabase) {
   await db.execAsync('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
 
@@ -287,8 +291,16 @@ export async function migrateDatabase(db: SQLiteDatabase) {
         await db.execAsync(MIGRATE_TO_V6);
         await db.execAsync('PRAGMA user_version = 6;');
       });
+      currentVersion = 6;
     } finally {
       await db.execAsync('PRAGMA foreign_keys = ON;');
     }
+  }
+
+  if (currentVersion === 6) {
+    await db.withTransactionAsync(async () => {
+      await db.execAsync(MIGRATE_TO_V7);
+      await db.execAsync('PRAGMA user_version = 7;');
+    });
   }
 }

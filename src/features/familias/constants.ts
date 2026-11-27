@@ -46,6 +46,17 @@ export const SETORES = [
   'Patrimônios',
 ] as const
 
+export const FILTROS_VISITA = [
+  'Há mais de 6 meses',
+  'Visita não informada',
+  'Visita realizada',
+] as const
+
+export const FILTROS_DADOS = [
+  'Dados faltantes',
+  'Dados preenchidos',
+] as const
+
 export type Cidade = (typeof CIDADES)[number]
 export type Cargo = (typeof CARGOS)[number]
 export type Ministerio = (typeof MINISTERIOS)[number]
@@ -53,6 +64,8 @@ export type SituacaoReligiosa = (typeof SITUACOES_RELIGIOSAS)[number]
 export type SituacaoEconomica = (typeof SITUACOES_ECONOMICAS)[number]
 export type TipoResidencia = (typeof TIPOS_RESIDENCIA)[number]
 export type Setor = (typeof SETORES)[number]
+export type FiltroVisita = (typeof FILTROS_VISITA)[number]
+export type FiltroDados = (typeof FILTROS_DADOS)[number]
 
 export const BAIRROS_POR_SETOR: Record<Exclude<Setor, 'Patrimônios'>, readonly string[]> = {
   'Setor 1': ['Vila Sunta', 'Jardim das Palmeiras', 'Jardim Aeroporto'],

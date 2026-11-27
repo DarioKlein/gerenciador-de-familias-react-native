@@ -17,8 +17,14 @@ import type {
   FamiliaFiltros,
   FamiliaInput,
 } from '@/features/familias/types';
+import { possuiCadastroIncompleto } from '@/features/familias/dashboard';
 import { obterDigitosTelefone } from '@/features/familias/telefone';
 import { validarFamiliaOuFalhar } from '@/features/familias/validation';
+import {
+  calcularResumoVisita,
+  ehDataFutura,
+  validarDataIso,
+} from '@/features/familias/visita';
 
 export type FamiliaImportacaoItem = FamiliaDados & {
   id: string;
@@ -43,6 +49,7 @@ type FamiliaRow = {
   situacao_religiosa: SituacaoReligiosa | null;
   situacao_economica: SituacaoEconomica | null;
   residencia: TipoResidencia | null;
+  ultima_visita: string | null;
   criado_em: string;
   atualizado_em: string;
 };
@@ -71,6 +78,7 @@ const SELECT_FAMILIAS = `
     situacao_religiosa,
     situacao_economica,
     residencia,
+    ultima_visita,
     criado_em,
     atualizado_em
   FROM familias
@@ -97,6 +105,7 @@ function mapFamilia(row: FamiliaRow, cargos: Cargo[]): Familia {
     situacaoReligiosa: row.situacao_religiosa,
     situacaoEconomica: row.situacao_economica,
     residencia: row.residencia,
+    ultimaVisita: row.ultima_visita,
     criadoEm: row.criado_em,
     atualizadoEm: row.atualizado_em,
   };
@@ -123,6 +132,35 @@ export function correspondeAosFiltros(familia: Familia, filtros: FamiliaFiltros)
   if (
     filtros.situacaoEconomica &&
     familia.situacaoEconomica !== filtros.situacaoEconomica
+  ) {
+    return false;
+  }
+  if (filtros.visita) {
+    const resumoVisita = calcularResumoVisita(familia.ultimaVisita);
+    if (
+      filtros.visita === 'Há mais de 6 meses' &&
+      !(resumoVisita.possuiVisita && resumoVisita.alertaAtrasada)
+    ) {
+      return false;
+    }
+    if (filtros.visita === 'Visita não informada' && resumoVisita.possuiVisita) {
+      return false;
+    }
+    if (
+      filtros.visita === 'Visita realizada' &&
+      !(resumoVisita.possuiVisita && !resumoVisita.alertaAtrasada)
+    ) {
+      return false;
+    }
+  }
+  if (filtros.dados) {
+    const incompleto = possuiCadastroIncompleto(familia);
+    if (filtros.dados === 'Dados faltantes' && !incompleto) return false;
+    if (filtros.dados === 'Dados preenchidos' && incompleto) return false;
+  }
+  if (
+    filtros.apenasComEnfermos &&
+    !(familia.numeroEnfermos && familia.numeroEnfermos > 0)
   ) {
     return false;
   }
@@ -248,8 +286,8 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
             id, nome, endereco, cep, numero, bairro, cidade, telefone,
             numero_moradores, numero_criancas, numero_idosos, numero_enfermos, numero_batizados,
             cargo, ministerio, situacao_religiosa, situacao_economica, residencia,
-            criado_em, atualizado_em
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            ultima_visita, criado_em, atualizado_em
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           familia.id,
           familia.nome,
           familia.endereco,
@@ -268,6 +306,7 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
           familia.situacaoReligiosa,
           familia.situacaoEconomica,
           familia.residencia,
+          familia.ultimaVisita,
           familia.criadoEm,
           familia.atualizadoEm
         );
@@ -303,6 +342,7 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
             situacao_religiosa = ?,
             situacao_economica = ?,
             residencia = ?,
+            ultima_visita = ?,
             atualizado_em = ?
           WHERE id = ?`,
           data.nome,
@@ -321,6 +361,7 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
           data.situacaoReligiosa,
           data.situacaoEconomica,
           data.residencia,
+          data.ultimaVisita,
           atualizadoEm,
           id
         );
@@ -333,6 +374,28 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
         setor: obterSetorDaFamilia({ cidade: data.cidade, bairro: data.bairro }),
         atualizadoEm,
       };
+    },
+
+    async registrarVisita(id: string, dataVisita: string) {
+      if (!validarDataIso(dataVisita)) {
+        throw new Error('Informe uma data de visita válida.');
+      }
+      if (ehDataFutura(dataVisita)) {
+        throw new Error('A data da visita não pode ser futura.');
+      }
+
+      const atualizadoEm = new Date().toISOString();
+      const result = await db.runAsync(
+        `UPDATE familias SET
+          ultima_visita = ?,
+          atualizado_em = ?
+        WHERE id = ?`,
+        dataVisita,
+        atualizadoEm,
+        id
+      );
+      if (result.changes === 0) return null;
+      return buscarPorId(id);
     },
 
     async excluir(id: string) {
@@ -373,6 +436,7 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
                 situacao_religiosa = ?,
                 situacao_economica = ?,
                 residencia = ?,
+                ultima_visita = ?,
                 atualizado_em = ?
               WHERE id = ?`,
               data.nome,
@@ -391,6 +455,7 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
               data.situacaoReligiosa,
               data.situacaoEconomica,
               data.residencia,
+              data.ultimaVisita,
               agora,
               item.id
             );
@@ -407,8 +472,8 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
                 id, nome, endereco, cep, numero, bairro, cidade, telefone,
                 numero_moradores, numero_criancas, numero_idosos, numero_enfermos, numero_batizados,
                 cargo, ministerio, situacao_religiosa, situacao_economica, residencia,
-                criado_em, atualizado_em
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                ultima_visita, criado_em, atualizado_em
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
               item.id,
               data.nome,
               data.endereco,
@@ -427,6 +492,7 @@ export function createFamiliasRepository(db: SQLiteDatabase) {
               data.situacaoReligiosa,
               data.situacaoEconomica,
               data.residencia,
+              data.ultimaVisita,
               criadoEmValido,
               agora
             );

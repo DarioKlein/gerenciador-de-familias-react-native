@@ -1,6 +1,8 @@
 import type {
   Cargo,
   Cidade,
+  FiltroDados,
+  FiltroVisita,
   Ministerio,
   Setor,
   SituacaoEconomica,
@@ -28,6 +30,7 @@ export type FamiliaDados = {
   situacaoReligiosa: SituacaoReligiosa | null;
   situacaoEconomica: SituacaoEconomica | null;
   residencia: TipoResidencia | null;
+  ultimaVisita: string | null;
 };
 
 export type Familia = FamiliaDados & {
@@ -56,6 +59,7 @@ export type FamiliaInput = {
   situacaoReligiosa?: string | null;
   situacaoEconomica?: string | null;
   residencia?: string | null;
+  ultimaVisita?: string | null;
 };
 
 export type FamiliaFiltros = {
@@ -65,4 +69,7 @@ export type FamiliaFiltros = {
   cidade?: Cidade | null;
   situacaoReligiosa?: SituacaoReligiosa | null;
   situacaoEconomica?: SituacaoEconomica | null;
+  visita?: FiltroVisita | null;
+  dados?: FiltroDados | null;
+  apenasComEnfermos?: boolean;
 };
