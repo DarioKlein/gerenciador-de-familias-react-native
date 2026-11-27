@@ -64,6 +64,7 @@ SQLite table `familias`:
 | `situacao_religiosa` | TEXT | no | A single value from the religious-status list. It is not multi-select. |
 | `situacao_economica` | TEXT | no | A single value from the economic-status list. |
 | `residencia` | TEXT | no | `Própria` or `Alugada`. |
+| `ultima_visita` | TEXT | no | Optional `YYYY-MM-DD` date of the last registered family visit. |
 | `criado_em` | TEXT | yes | ISO 8601 timestamp generated automatically. |
 | `atualizado_em` | TEXT | yes | ISO 8601 timestamp refreshed on each edit. |
 
