@@ -75,8 +75,8 @@ SQLite table `familias`:
 - Show this field as `Localidade / distrito`; never imply that the districts are separate municipalities.
 - CEP queries use the official municipality and state `Cândido Mota/SP`. They may fill street and neighborhood, but must not overwrite the selected locality/district without confirmation.
 - Keep CEP lookup optional. When offline or the service is unavailable, preserve manual address entry and use cached successful queries when possible.
-- Role values: `Auxiliar de jovens`, `Administração`, `Porteiro / Porteira`, `Músico`.
-- Ministry values: `Cooperador de jovens`, `Cooperador oficial`, `Diácono`, `Ancião`, `Encarregado de orquestra`.
+- Role values: `Auxiliar de jovens`, `Administração`, `Porteiro(a)`, `Músico`, `Organista`, `Auxiliar do som`.
+- Ministry values: `Cooperador de jovens`, `Cooperador oficial`, `Diácono`, `Ancião`, `Encarregado de orquestra`, `Irmã da obra da piedade`.
 - Residence values: `Própria`, `Alugada`.
 - Legacy records without a religious status remain null and are displayed as `Não informado`.
 - Legacy `CONTATO` entries in the old workbook are not phone numbers; the new `telefone` field remains empty unless a real number is available.
