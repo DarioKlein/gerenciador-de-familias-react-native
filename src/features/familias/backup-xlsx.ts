@@ -161,6 +161,13 @@ const LOCALIDADE_EXTRAS = new Map<string, string>(
   ])
 );
 
+const CARGO_EXTRAS = new Map<string, string>([
+  ['porteiro / porteira', 'Porteiro(a)'],
+  ['porteiro/porteira', 'Porteiro(a)'],
+  ['porteiro', 'Porteiro(a)'],
+  ['porteira', 'Porteiro(a)'],
+]);
+
 function parsearCargos(valor: string) {
   const limpo = valor.trim();
   if (!limpo) return [];
@@ -169,7 +176,7 @@ function parsearCargos(valor: string) {
     .split(/[,;|]/)
     .map((parte) => parte.trim())
     .filter(Boolean)
-    .map((parte) => corresponderListaFixa(parte, CARGOS) ?? parte);
+    .map((parte) => corresponderListaFixa(parte, CARGOS, CARGO_EXTRAS) ?? parte);
 }
 
 function criarLinhasLeiame() {
