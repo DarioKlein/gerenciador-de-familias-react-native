@@ -706,6 +706,7 @@ export function FamiliaForm({
                   onPress={onCancel}
                   style={({ pressed }) => [
                     styles.actionButton,
+                    styles.cancelButton,
                     {
                       backgroundColor: theme.backgroundElement,
                       borderColor: theme.border,
@@ -713,7 +714,13 @@ export function FamiliaForm({
                       opacity: pressed ? 0.75 : 1,
                     },
                   ]}>
-                  <ThemedText type="smallBold">Cancelar</ThemedText>
+                  <ThemedText
+                    type="smallBold"
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.85}>
+                    Cancelar
+                  </ThemedText>
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
@@ -721,6 +728,7 @@ export function FamiliaForm({
                   onPress={submit}
                   style={({ pressed }) => [
                     styles.actionButton,
+                    styles.saveButton,
                     {
                       backgroundColor: theme.primary,
                       opacity: pressed || saving ? 0.72 : 1,
@@ -728,7 +736,12 @@ export function FamiliaForm({
                   ]}>
                   <View style={styles.actionButtonContent}>
                     <AppIcon name="save" color="#FFFFFF" size={20} />
-                    <ThemedText type="smallBold" style={styles.saveText}>
+                    <ThemedText
+                      type="smallBold"
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.82}
+                      style={styles.saveText}>
                       {saving ? 'Salvando…' : submitLabel}
                     </ThemedText>
                   </View>
@@ -912,20 +925,28 @@ const styles = StyleSheet.create({
     marginTop: Spacing.one,
   },
   actionButton: {
-    flex: 1,
     minHeight: 54,
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 999,
-    paddingHorizontal: Spacing.three,
+    borderRadius: 18,
+    paddingHorizontal: Spacing.two,
+  },
+  cancelButton: {
+    flex: 0.8,
+  },
+  saveButton: {
+    flex: 1.4,
   },
   saveText: {
     color: '#FFFFFF',
+    flexShrink: 1,
   },
   actionButtonContent: {
+    maxWidth: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.two,
+    gap: 6,
   },
 });
