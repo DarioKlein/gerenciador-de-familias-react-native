@@ -1,21 +1,43 @@
 import { Linking } from 'react-native';
 
+import { obterDigitosCep } from './cep';
+import { MUNICIPIO_OFICIAL, UF_OFICIAL } from './constants';
 import type { Familia } from './types';
 
 export type ProvedorMapa = 'google-maps' | 'waze';
 
-type EnderecoMapaInput = Pick<Familia, 'endereco' | 'numero' | 'bairro' | 'cidade'>;
+type EnderecoMapaInput = Pick<
+  Familia,
+  'endereco' | 'numero' | 'bairro' | 'cidade' | 'cep'
+>;
 
 function textoLimpo(value: string | null | undefined) {
   return value?.trim() ?? '';
 }
 
+function limparNumeroParaMapa(numero: string | null | undefined) {
+  const limpo = textoLimpo(numero)
+    .replace(/\s*-?\s*\bfundos?\b$/i, '')
+    .trim();
+  if (!limpo) return '';
+  if (/^(s\/n|0+|nao|não|asilo)$/i.test(limpo)) return '';
+  return limpo;
+}
+
+function temCepValidoMunicipio(cep: string | null | undefined) {
+  if (!cep) return false;
+  const digits = obterDigitosCep(cep);
+  return digits.length === 8 && /^198[89]/.test(digits);
+}
+
 export function possuiEnderecoParaMapa(
-  familia: Pick<Familia, 'endereco' | 'bairro' | 'cidade'>
+  familia: Pick<Familia, 'endereco' | 'bairro' | 'cidade'> & { cep?: string | null }
 ): boolean {
   const temRua = textoLimpo(familia.endereco).length > 0;
   const temLocalidadeOuBairro =
-    Boolean(familia.cidade) || textoLimpo(familia.bairro).length > 0;
+    Boolean(familia.cidade) ||
+    textoLimpo(familia.bairro).length > 0 ||
+    temCepValidoMunicipio(familia.cep);
 
   return temRua && temLocalidadeOuBairro;
 }
@@ -25,23 +47,32 @@ export function construirConsultaMapa(familia: EnderecoMapaInput): string | null
     return null;
   }
 
-  const partes = [
+  const ruaENumero = [
     textoLimpo(familia.endereco),
-    textoLimpo(familia.numero),
-    textoLimpo(familia.bairro),
-    textoLimpo(familia.cidade),
-    'SP, Brasil',
+    limparNumeroParaMapa(familia.numero),
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  const localidade = textoLimpo(familia.cidade);
+  const distrito =
+    localidade && localidade !== MUNICIPIO_OFICIAL ? localidade : '';
+
+  const partes = [
+    ruaENumero,
+    distrito,
+    `${MUNICIPIO_OFICIAL} - ${UF_OFICIAL}`,
   ].filter(Boolean);
 
   return partes.join(', ');
 }
 
 export function construirUrlGoogleMaps(consulta: string): string {
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(consulta)}&travelmode=driving`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(consulta)}`;
 }
 
 export function construirUrlWaze(consulta: string): string {
-  return `https://waze.com/ul?q=${encodeURIComponent(consulta)}&navigate=yes`;
+  return `https://waze.com/ul?q=${encodeURIComponent(consulta)}`;
 }
 
 export async function abrirEnderecoNoMapa(

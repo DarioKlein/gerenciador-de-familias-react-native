@@ -68,27 +68,54 @@ export type FiltroVisita = (typeof FILTROS_VISITA)[number]
 export type FiltroDados = (typeof FILTROS_DADOS)[number]
 
 export const BAIRROS_POR_SETOR: Record<Exclude<Setor, 'Patrimônios'>, readonly string[]> = {
-  'Setor 1': ['Vila Sunta', 'Jardim das Palmeiras', 'Jardim Aeroporto'],
-  'Setor 2': ['Jardim São Geraldo', 'Vila Alpínia', 'Vila Operária', 'Jardim Alvorada', 'Vila Marim'],
-  'Setor 3': ['Sol Nascente', 'Vila Dias', 'Jardim São Francisco', 'Bela Vitta', 'Vila Atlanta'],
-  'Setor 4': ['Parque Lourival', 'Parque Santa Cruz'],
-  'Setor 5': [
-    'Vila São Judas',
-    'Jardim Vitória',
-    'Vila Nova',
-    'Santa Clara 1 e 2 / Jardim Bela Vista',
-    'Três Cantos',
-    'Jardim Vera Cruz',
+  'Setor 1': [
+    'Vila Assunta',
+    'Jardim das Palmeiras',
+    'Jardim Aeroporto',
+    'Conjunto Habitacional Manoel Inácio Dias',
+    'Jardim das Flores',
   ],
-  'Setor 6': ['Vila Pires', 'Jardim São Roque'],
+  'Setor 2': [
+    'Jardim São Geraldo',
+    'Vila Alpínia',
+    'Conjunto Habitacional Sebastião Alves Borges',
+    'Vila Operária',
+    'Jardim Alvorada',
+    'Vila Marim',
+  ],
+  'Setor 3': [
+    'Jardim Sol Nascente',
+    'Vila Dias',
+    'Jardim São Francisco',
+    'Residencial Bella Vitta',
+    'Vila Atlanta',
+  ],
+  'Setor 4': [
+    'Parque Prefeito Lourival José de Almeida',
+    'Parque Santa Cruz',
+    'Vila Garrido',
+  ],
+  'Setor 5': [
+    'Vila São Judas Tadeu',
+    'Conjunto Habitacional Jardim Vitória',
+    'Vila Nova',
+    'Santa Clara',
+    'Residencial Santa Clara II',
+    'Jardim Bela Vista',
+    'Três Cantos',
+    'Vila Vera Cruz',
+  ],
+  'Setor 6': ['Vila Pires', 'Vila São Roque'],
   'Setor 7': [
     'Jardim Santa Lúcia',
     'Vila Marubo',
     'Jardim Santa Terezinha',
+    'Vila Santa Terezinha',
     'Centro',
     'Jardim Paraíso',
     'Jardim Tangará',
-    'Itália',
+    'Residencial Itália',
+    'Vila Gaspar',
   ],
 }
 
@@ -117,6 +144,8 @@ function normalizarBairroSetor(value: string) {
     .replace(/\bjd\.?\b/g, 'jardim')
     .replace(/\bpq\.?\b/g, 'parque')
     .replace(/\bvl\.?\b/g, 'vila')
+    .replace(/\bconj\.?\s*hab\.?\b/g, 'conjunto habitacional')
+    .replace(/\bpref\.?\b/g, 'prefeito')
     .replace(/\s+/g, ' ')
     .trim()
 }
@@ -133,20 +162,46 @@ for (const [setor, bairros] of Object.entries(BAIRROS_POR_SETOR) as [
 }
 
 const BAIRRO_ALIASES: Record<string, Exclude<Setor, 'Patrimônios'>> = {
-  central: 'Setor 7',
-  'jardim italia': 'Setor 7',
-  'vila italia': 'Setor 7',
-  'tres canto': 'Setor 5',
-  'santa clara': 'Setor 5',
+  // Setor 1
+  'vila sunta': 'Setor 1',
+  'vila sutta': 'Setor 1',
+  'vila assunta': 'Setor 1',
+  'vila santos dumont': 'Setor 1',
+  'manoel inacio dias': 'Setor 1',
+  'conjunto habitacional manoel inacio dias': 'Setor 1',
+  // Setor 2
+  'sebastiao alves borges': 'Setor 2',
+  'conjunto habitacional sebastiao alves borges': 'Setor 2',
+  // Setor 3
+  'sol nascente': 'Setor 3',
+  'residencial atlanta': 'Setor 3',
+  'bela vitta': 'Setor 3',
+  'bela vita': 'Setor 3',
+  'bella vitta': 'Setor 3',
+  'jardim bela vitta': 'Setor 3',
+  'residencial bela vitta': 'Setor 3',
+  // Setor 4
+  'parque lourival': 'Setor 4',
+  'parque prefeito lourival': 'Setor 4',
+  lourival: 'Setor 4',
+  'parque prefeito lourival jose de almeida': 'Setor 4',
+  // Setor 5
+  'vila sao judas': 'Setor 5',
+  'jardim vitoria': 'Setor 5',
   'santa clara 1': 'Setor 5',
   'santa clara 2': 'Setor 5',
   'santa clara 1 e 2': 'Setor 5',
-  'jardim bela vista': 'Setor 5',
+  'santa clara 1 e 2 / jardim bela vista': 'Setor 5',
   'bela vista': 'Setor 5',
-  'bela vita': 'Setor 3',
-  'jardim bela vitta': 'Setor 3',
-  'vila santos dumont': 'Setor 1',
-  'vila sutta': 'Setor 1',
+  'tres canto': 'Setor 5',
+  'jardim vera cruz': 'Setor 5',
+  // Setor 6
+  'jardim sao roque': 'Setor 6',
+  // Setor 7
+  central: 'Setor 7',
+  italia: 'Setor 7',
+  'jardim italia': 'Setor 7',
+  'vila italia': 'Setor 7',
 }
 
 for (const [alias, setor] of Object.entries(BAIRRO_ALIASES)) {
@@ -172,9 +227,28 @@ export function obterSetorDaFamilia({
     const direto = BAIRRO_SETOR_MAP.get(bairroNorm)
     if (direto) return direto
 
-    if (bairroNorm.includes('santa clara') || bairroNorm.includes('bela vista')) {
+    if (bairroNorm.includes('lourival')) return 'Setor 4'
+    if (bairroNorm.includes('assunta') || bairroNorm.includes('manoel inacio dias')) {
+      return 'Setor 1'
+    }
+    if (bairroNorm.includes('sebastiao alves borges')) return 'Setor 2'
+    if (
+      bairroNorm.includes('bella vitta') ||
+      bairroNorm.includes('bela vitta') ||
+      bairroNorm.includes('sol nascente')
+    ) {
+      return 'Setor 3'
+    }
+    if (
+      bairroNorm.includes('sao judas') ||
+      bairroNorm.includes('jardim vitoria') ||
+      bairroNorm.includes('santa clara') ||
+      bairroNorm.includes('bela vista')
+    ) {
       return 'Setor 5'
     }
+    if (bairroNorm.includes('sao roque')) return 'Setor 6'
+    if (bairroNorm.includes('santa terezinha')) return 'Setor 7'
   }
 
   return null
