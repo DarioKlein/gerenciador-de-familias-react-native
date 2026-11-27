@@ -1,10 +1,11 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { AppIcon } from '@/components/app-icon';
+import { AppIcon, type AppIconName } from '@/components/app-icon';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import { getLocalidadeLabel } from '@/features/familias/constants';
+import { possuiCadastroIncompleto } from '@/features/familias/dashboard';
 import type { Familia } from '@/features/familias/types';
+import { calcularResumoVisita } from '@/features/familias/visita';
 import { useTheme } from '@/hooks/use-theme';
 
 import { StatusBadge } from './status-badge';
@@ -14,16 +15,80 @@ type FamiliaCardProps = {
   onPress: () => void;
 };
 
+type CardHighlightItem = {
+  key: string;
+  icon: AppIconName;
+  iconBg: string;
+  iconColor: string;
+  textColor: string;
+  bold: boolean;
+  label: string;
+};
+
 export function FamiliaCard({ familia, onPress }: FamiliaCardProps) {
   const theme = useTheme();
-  const address = [familia.endereco, familia.numero].filter(Boolean).join(', ');
-  const location = [
-    familia.setor,
-    familia.bairro,
-    familia.cidade ? getLocalidadeLabel(familia.cidade) : null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  const resumoVisita = calcularResumoVisita(familia.ultimaVisita);
+  const cadastroIncompleto = possuiCadastroIncompleto(familia);
+
+  const highlights: CardHighlightItem[] = [
+    {
+      key: 'setor',
+      icon: 'location',
+      iconBg: familia.setor ? theme.primarySoft : theme.input,
+      iconColor: familia.setor ? theme.primary : theme.textSecondary,
+      textColor: familia.setor ? theme.text : theme.textSecondary,
+      bold: Boolean(familia.setor),
+      label: familia.setor ?? 'Setor não informado',
+    },
+    !resumoVisita.possuiVisita
+      ? {
+          key: 'visita',
+          icon: 'calendar',
+          iconBg: theme.input,
+          iconColor: theme.textSecondary,
+          textColor: theme.textSecondary,
+          bold: false,
+          label: 'Nenhuma visita registrada',
+        }
+      : resumoVisita.alertaAtrasada
+        ? {
+            key: 'visita',
+            icon: 'warning',
+            iconBg: theme.warningSoft,
+            iconColor: theme.warning,
+            textColor: theme.warning,
+            bold: true,
+            label: 'Não visitado há 6 meses',
+          }
+        : {
+            key: 'visita',
+            icon: 'check',
+            iconBg: theme.primarySoft,
+            iconColor: theme.primary,
+            textColor: theme.primary,
+            bold: true,
+            label: `Visita realizada · ${resumoVisita.dataFormatada}`,
+          },
+    cadastroIncompleto
+      ? {
+          key: 'dados',
+          icon: 'warning',
+          iconBg: theme.dangerSoft,
+          iconColor: theme.danger,
+          textColor: theme.danger,
+          bold: true,
+          label: 'Dados faltantes',
+        }
+      : {
+          key: 'dados',
+          icon: 'check',
+          iconBg: theme.primarySoft,
+          iconColor: theme.primary,
+          textColor: theme.primary,
+          bold: true,
+          label: 'Dados preenchidos',
+        },
+  ];
 
   return (
     <Pressable
@@ -66,18 +131,20 @@ export function FamiliaCard({ familia, onPress }: FamiliaCardProps) {
         </View>
       ) : null}
 
-      <View style={styles.addressRow}>
-        <View style={[styles.iconSurface, { backgroundColor: theme.primarySoft }]}>
-          <AppIcon name="location" color={theme.primary} size={21} />
-        </View>
-        <View style={styles.addressBlock}>
-          <ThemedText type="smallBold" numberOfLines={2}>
-            {address}
-          </ThemedText>
-          <ThemedText themeColor="textSecondary" numberOfLines={1}>
-            {location || 'Localização não informada'}
-          </ThemedText>
-        </View>
+      <View style={styles.highlights}>
+        {highlights.map((item) => (
+          <View key={item.key} style={styles.highlightRow}>
+            <View style={[styles.highlightIcon, { backgroundColor: item.iconBg }]}>
+              <AppIcon name={item.icon} color={item.iconColor} size={17} />
+            </View>
+            <ThemedText
+              type={item.bold ? 'smallBold' : 'small'}
+              numberOfLines={1}
+              style={[styles.highlightText, { color: item.textColor }]}>
+              {item.label}
+            </ThemedText>
+          </View>
+        ))}
       </View>
 
       <View style={[styles.footer, { borderTopColor: theme.border }]}>
@@ -121,22 +188,25 @@ const styles = StyleSheet.create({
     fontSize: 22,
     lineHeight: 28,
   },
-  addressBlock: {
-    flex: 1,
-    gap: Spacing.one,
-    paddingVertical: Spacing.two,
+  highlights: {
+    gap: Spacing.two,
+    paddingVertical: Spacing.one,
   },
-  addressRow: {
+  highlightRow: {
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.three,
+    gap: Spacing.two,
   },
-  iconSurface: {
-    width: 44,
-    height: 44,
+  highlightIcon: {
+    width: 34,
+    height: 34,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 16,
+    borderRadius: 11,
+  },
+  highlightText: {
+    flex: 1,
   },
   metaRow: {
     minWidth: 0,

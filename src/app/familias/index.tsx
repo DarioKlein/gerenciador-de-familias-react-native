@@ -22,10 +22,14 @@ import { FamiliaCardSkeletonList } from '@/features/familias/components/familia-
 import { SelectField } from '@/features/familias/components/select-field';
 import {
   CIDADES,
+  FILTROS_DADOS,
+  FILTROS_VISITA,
   getLocalidadeLabel,
   SETORES,
   SITUACOES_RELIGIOSAS,
   type Cidade,
+  type FiltroDados,
+  type FiltroVisita,
   type Setor,
   type SituacaoReligiosa,
 } from '@/features/familias/constants';
@@ -45,6 +49,9 @@ export default function FamiliasScreen() {
   const [cidade, setCidade] = useState<Cidade | null>(null);
   const [bairro, setBairro] = useState<string | null>(null);
   const [situacao, setSituacao] = useState<SituacaoReligiosa | null>(null);
+  const [visita, setVisita] = useState<FiltroVisita | null>(null);
+  const [dados, setDados] = useState<FiltroDados | null>(null);
+  const [apenasComEnfermos, setApenasComEnfermos] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,9 +114,22 @@ export default function FamiliasScreen() {
           cidade,
           bairro,
           situacaoReligiosa: situacao,
+          visita,
+          dados,
+          apenasComEnfermos,
         })
       ),
-    [bairro, buscaDebounced, cidade, setor, situacao, todasFamilias]
+    [
+      apenasComEnfermos,
+      bairro,
+      buscaDebounced,
+      cidade,
+      dados,
+      setor,
+      situacao,
+      todasFamilias,
+      visita,
+    ]
   );
 
   const showLoading = loading && todasFamilias.length === 0;
@@ -123,9 +143,14 @@ export default function FamiliasScreen() {
     setCidade(null);
     setBairro(null);
     setSituacao(null);
+    setVisita(null);
+    setDados(null);
+    setApenasComEnfermos(false);
   };
 
-  const hasFilters = Boolean(busca.trim() || setor || cidade || bairro || situacao);
+  const hasFilters = Boolean(
+    busca.trim() || setor || cidade || bairro || situacao || visita || dados || apenasComEnfermos
+  );
 
   return (
     <ThemedView style={styles.root}>
@@ -226,6 +251,40 @@ export default function FamiliasScreen() {
                   options={SITUACOES_RELIGIOSAS}
                   onChange={setSituacao}
                 />
+                <SelectField<FiltroVisita>
+                  variant="chip"
+                  label="Visita"
+                  value={visita}
+                  options={FILTROS_VISITA}
+                  onChange={setVisita}
+                />
+                <SelectField<FiltroDados>
+                  variant="chip"
+                  label="Dados"
+                  value={dados}
+                  options={FILTROS_DADOS}
+                  onChange={setDados}
+                />
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Filtrar famílias com enfermos"
+                  accessibilityState={{ selected: apenasComEnfermos }}
+                  onPress={() => setApenasComEnfermos((prev) => !prev)}
+                  style={({ pressed }) => [
+                    styles.toggleChip,
+                    {
+                      backgroundColor: apenasComEnfermos ? theme.primarySoft : theme.input,
+                      borderColor: apenasComEnfermos ? theme.primary : theme.border,
+                      opacity: pressed ? 0.78 : 1,
+                    },
+                  ]}>
+                  <ThemedText type="smallBold" numberOfLines={1}>
+                    Com enfermos
+                  </ThemedText>
+                  {apenasComEnfermos ? (
+                    <AppIcon name="close" color={theme.primary} size={16} />
+                  ) : null}
+                </Pressable>
               </ScrollView>
 
               <View style={styles.resultsRow}>
@@ -362,6 +421,15 @@ const styles = StyleSheet.create({
   filters: {
     gap: Spacing.two,
     paddingRight: Spacing.three,
+  },
+  toggleChip: {
+    minHeight: 42,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: Spacing.three,
   },
   resultsRow: {
     minHeight: 32,
