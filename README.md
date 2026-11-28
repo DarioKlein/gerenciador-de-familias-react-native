@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="assets/images/icon.png" alt="Logo do aplicativo Famílias" width="110">
+  <img src=".github/logo-familias.png" alt="Logo do aplicativo Famílias" width="120">
 
   <h1>Famílias — Gerenciamento Mobile</h1>
 
@@ -206,6 +206,7 @@ Os tokens de cores do tema claro estão centralizados em `src/constants/theme.ts
 ```text
 GerenciamentoDeFamiliasMobile/
 ├── .github/
+│   ├── logo-familias.png                 # Logo arredondada exibida no README
 │   └── tela-principal-celular.png        # Mockup da tela inicial exibido no README
 ├── assets/
 │   ├── expo.icon/                        # Ícone adaptativo iOS
