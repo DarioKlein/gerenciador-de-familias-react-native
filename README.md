@@ -209,7 +209,6 @@ GerenciamentoDeFamiliasMobile/
 │   ├── logo-familias.png                 # Logo arredondada exibida no README
 │   └── tela-principal-celular.png        # Mockup da tela inicial exibido no README
 ├── assets/
-│   ├── expo.icon/                        # Ícone adaptativo iOS
 │   └── images/                           # Ícone do app, splash screen e captura original
 ├── src/
 │   ├── app/                              # Rotas e navegadores do Expo Router
